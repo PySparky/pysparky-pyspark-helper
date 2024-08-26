@@ -1,7 +1,12 @@
 import pyspark
 from pyspark.sql import Window
+from pyspark.sql import functions as F
 
-def get_latest_record_from_column_v2(
+from pysparky import decorator
+
+# the fuction is having some error, need changes
+@decorator.extension_enabler(pyspark.sql.DataFrame)
+def get_latest_record_from_column(
     sdf: pyspark.sql.DataFrame,
     window_partition_column_name: str,
     window_order_by_column_names: str | list,

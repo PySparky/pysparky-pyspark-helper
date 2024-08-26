@@ -33,3 +33,7 @@ def startswiths(column_or_name: "ColumnOrName", list_of_string: list[str]) -> py
         map(lambda bins: column_or_name.startswith(bins), list_of_string), 
         F.lit(False)
     ).alias(f"startswiths_len{len(list_of_string)}")
+
+@decorator.extension_enabler(Column)
+def chain(self, func, *args, **kwargs) -> Column:
+    return func(self, *args, **kwargs)
