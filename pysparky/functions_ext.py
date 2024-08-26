@@ -12,6 +12,7 @@ def _lower(col:Column) -> Column:
 
     return F.lower(col)
 
+@decorator.extension_enabler(Column)
 @decorator.pyspark_column_or_name_enabler("column_or_name")
 def startswiths(column_or_name: "ColumnOrName", list_of_string: list[str]) -> pyspark.sql.Column:
     """

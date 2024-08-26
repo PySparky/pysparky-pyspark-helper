@@ -44,6 +44,9 @@ def pyspark_column_or_name_enabler(*param_names):
     return decorator
 
 def extension_enabler(cls):
+    """
+    This enable you to chain the class
+    """
     def decorator(func):
         # assign the function into the object
         setattr(cls, f"{func.__name__}", func)

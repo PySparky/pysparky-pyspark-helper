@@ -15,7 +15,8 @@ spark = SparkSession.builder.getOrCreate()
 spark.range(6).select(
     F_._lower(F.lit("HELLO")),
     F_.startswiths(F.lit("a12334"), ["123", "234"]),
-    F.lit("HELLO")._lower()
+    F.lit("HELLO")._lower(),
+    F.lit("HELLO").startswiths(["hello", "HEL"])
 ).show()
 
 data_dict = {
