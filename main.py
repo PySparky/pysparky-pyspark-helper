@@ -13,8 +13,9 @@ print(cenz.hello())
 spark = SparkSession.builder.getOrCreate()
 
 spark.range(6).select(
-    F_.sample_func(F.lit("HELLO")),
-    F_.startswiths(F.lit("a12334"), ["123", "234"])
+    F_._lower(F.lit("HELLO")),
+    F_.startswiths(F.lit("a12334"), ["123", "234"]),
+    F.lit("HELLO")._lower()
 ).show()
 
 data_dict = {
@@ -27,5 +28,5 @@ df.show()
 # key1,1
 # key2,2
 
-pyspark.sql.SparkSession.convert_dict_to_dataframe = se.convert_dict_to_dataframe
+# pyspark.sql.SparkSession.convert_dict_to_dataframe = se.convert_dict_to_dataframe
 spark.convert_dict_to_dataframe(data_dict, column_names, explode=True).show()

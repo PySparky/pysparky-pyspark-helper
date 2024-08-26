@@ -7,7 +7,8 @@ from pyspark.sql import functions as F
 
 from pysparky import decorator
 
-def sample_func(col:Column) -> Column:
+@decorator.extension_enabler(Column)
+def _lower(col:Column) -> Column:
 
     return F.lower(col)
 
