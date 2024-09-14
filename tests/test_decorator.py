@@ -1,12 +1,13 @@
 import pytest
 from pyspark.sql import Column
+from pyspark.sql import SparkSession
 
-from .spark import spark
+SparkSession.builder.getOrCreate()  # Needed for creating the Spark
 
 # Now import the decorators
 from pysparky.decorator import pyspark_column_or_name_enabler, extension_enabler
 
-# # Test pyspark_column_or_name_enabler
+
 def test_pyspark_column_or_name_enabler():
     @pyspark_column_or_name_enabler("col1", "col2")
     def test_function(col1, col2, col3):
@@ -31,7 +32,7 @@ def test_pyspark_column_or_name_enabler():
     assert isinstance(result[1], Column)
     assert isinstance(result[2], str)
 
-# Test extension_enabler
+
 def test_extension_enabler():
     class TestClass:
         def __init__(self):
@@ -53,6 +54,7 @@ def test_extension_enabler():
     # Test chaining
     obj.add_value(3).add_value(2)
     assert obj.value == 10
+
 
 if __name__ == "__main__":
     pytest.main()

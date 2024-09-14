@@ -4,6 +4,7 @@ import operator
 import pyspark
 from pyspark.sql import functions as F
 
+
 def pyspark_column_or_name_enabler(*param_names):
     """
     A decorator to enable PySpark functions to accept either column names (as strings) or Column objects.
@@ -19,6 +20,7 @@ def pyspark_column_or_name_enabler(*param_names):
     def your_function(column_or_name):
         return column_or_name.startswith(bins)
     """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -29,30 +31,41 @@ def pyspark_column_or_name_enabler(*param_names):
             # param_names : the list of parameter from the decorator
 
             # Merging the args into Kwargs
-            args_name_used = func.__code__.co_varnames[:len(args)]
+            args_name_used = func.__code__.co_varnames[: len(args)]
             kw_from_args = dict(zip(args_name_used, args))
-            kwargs = (kw_from_args | kwargs)
+            kwargs = kw_from_args | kwargs
 
             # print(kwargs)
             # transform all the input param
             for param_name in param_names:
                 # if it is string, wrap it as string, else do nth
-                kwargs[param_name] = F.col(kwargs[param_name]) if isinstance(kwargs[param_name], str) else kwargs[param_name]
+                kwargs[param_name] = (
+                    F.col(kwargs[param_name])
+                    if isinstance(kwargs[param_name], str)
+                    else kwargs[param_name]
+                )
 
             return func(**kwargs)
+
         return wrapper
+
     return decorator
+
 
 def extension_enabler(cls):
     """
     This enable you to chain the class
     """
+
     def decorator(func):
         # assign the function into the object
         setattr(cls, f"{func.__name__}", func)
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             func_return = func(*args, **kwargs)
-            return func_return 
+            return func_return
+
         return wrapper
+
     return decorator

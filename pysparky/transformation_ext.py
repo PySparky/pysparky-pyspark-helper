@@ -4,6 +4,7 @@ from pyspark.sql import functions as F
 
 from pysparky import decorator
 
+
 # the fuction is having some error, need changes
 @decorator.extension_enabler(pyspark.sql.DataFrame)
 def get_latest_record_from_column(
@@ -35,7 +36,9 @@ def get_latest_record_from_column(
         sdf.withColumn(
             "temp",
             window_function().over(
-                Window.partitionBy(window_partition_column_name).orderBy(*window_order_by_column_names)
+                Window.partitionBy(window_partition_column_name).orderBy(
+                    *window_order_by_column_names
+                )
             ),
         )
         .filter(F.col("temp") == 1)

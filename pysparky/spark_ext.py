@@ -5,8 +5,11 @@ from pyspark.sql import functions as F
 
 from pysparky import decorator
 
+
 @decorator.extension_enabler(pyspark.sql.SparkSession)
-def convert_dict_to_dataframe(spark, _dict: dict[str, Any], column_names: list[str], explode: bool = False) -> pyspark.sql.DataFrame:
+def convert_dict_to_dataframe(
+    spark, _dict: dict[str, Any], column_names: list[str], explode: bool = False
+) -> pyspark.sql.DataFrame:
     """
     Converts a dictionary with list values into a Spark DataFrame.
 
@@ -36,9 +39,9 @@ def convert_dict_to_dataframe(spark, _dict: dict[str, Any], column_names: list[s
     output_sdf = spark.createDataFrame(_dict.items(), column_names)
 
     if explode:
-        assert all(isinstance(val, list) for val in _dict.values()), "All values in the dictionary must be lists"
+        assert all(
+            isinstance(val, list) for val in _dict.values()
+        ), "All values in the dictionary must be lists"
         return output_sdf.withColumn(column_names[1], F.explode(column_names[1]))
     else:
         return output_sdf
-
-    

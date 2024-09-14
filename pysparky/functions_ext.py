@@ -7,14 +7,18 @@ from pyspark.sql import functions as F
 
 from pysparky import decorator
 
+
 @decorator.extension_enabler(Column)
-def _lower(col:Column) -> Column:
+def _lower(col: Column) -> Column:
 
     return F.lower(col)
 
+
 @decorator.extension_enabler(Column)
 @decorator.pyspark_column_or_name_enabler("column_or_name")
-def startswiths(column_or_name: "ColumnOrName", list_of_string: list[str]) -> pyspark.sql.Column:
+def startswiths(
+    column_or_name: "ColumnOrName", list_of_string: list[str]
+) -> pyspark.sql.Column:
     """
     Creates a PySpark Column expression that checks if the given column starts with any of the strings in the list.
 
@@ -27,12 +31,13 @@ def startswiths(column_or_name: "ColumnOrName", list_of_string: list[str]) -> py
     """
     # If we are not using the decorator
     # column_or_name = F.col(column_or_name) if isinstance(column_or_name, str) else column_or_name
-    
+
     return functools.reduce(
-        operator.or_, 
-        map(lambda bins: column_or_name.startswith(bins), list_of_string), 
-        F.lit(False)
+        operator.or_,
+        map(lambda bins: column_or_name.startswith(bins), list_of_string),
+        F.lit(False),
     ).alias(f"startswiths_len{len(list_of_string)}")
+
 
 @decorator.extension_enabler(Column)
 def chain(self, func, *args, **kwargs) -> Column:
