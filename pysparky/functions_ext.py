@@ -19,7 +19,7 @@ def _lower(col: Column) -> Column:
 @decorator.extension_enabler(Column)
 @decorator.pyspark_column_or_name_enabler("column_or_name")
 def startswiths(
-    column_or_name: "ColumnOrName", list_of_string: list[str]
+    column_or_name: str | Column, list_of_string: list[str]
 ) -> pyspark.sql.Column:
     """
     Creates a PySpark Column expression that checks if the given column starts with any of the strings in the list.
