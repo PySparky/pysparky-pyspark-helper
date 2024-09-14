@@ -1,7 +1,5 @@
 import functools
-import operator
 
-import pyspark
 from pyspark.sql import functions as F
 
 

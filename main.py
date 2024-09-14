@@ -2,8 +2,6 @@ import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
-from pysparky import cenz
-
 from pysparky import functions_ext as F_
 from pysparky import spark_ext as se
 from pysparky import transformation_ext as te
@@ -32,14 +30,32 @@ spark.convert_dict_to_dataframe(data_dict, column_names, explode=True).show()
 spark.range(1).select(F.lit("HELLO").chain(F.lower)).show()
 
 
-spark.createDataFrame(
-    [
-        (1, 1),
-        (1, 2),
-        (1, 3),
-        (2, 2),
-        (2, 3),
-        (2, 4),
-    ],
-    ["key", "value"],
-).get_latest_record_from_column("key", "value").show()
+# spark.createDataFrame(
+#     [
+#         (1, 1),
+#         (1, 2),
+#         (1, 3),
+#         (2, 2),
+#         (2, 3),
+#         (2, 4),
+#     ],
+#     ["key", "value"],
+# ).get_latest_record_from_column("key", "value").show()
+
+df = spark.createDataFrame([("hello",)], ["text"])
+
+
+def custom_upper(col):
+    return F.upper(col)
+
+
+result = df.withColumn("upper_text", df.text.chain(custom_upper))
+result.show()
+
+
+def add_prefix(col, prefix):
+    return F.concat(F.lit(prefix), col)
+
+
+result = df.withColumn("prefixed_text", df.text.chain(add_prefix, prefix="Pre: "))
+result.show()
