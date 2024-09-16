@@ -1,5 +1,6 @@
 import pytest
 from pyspark.sql import Column, SparkSession
+from pyspark.sql import functions as F
 
 # SparkSession.builder.getOrCreate()  # Needed for creating the Spark
 
@@ -7,7 +8,8 @@ from pyspark.sql import Column, SparkSession
 from pysparky.decorator import extension_enabler, pyspark_column_or_name_enabler
 
 
-def test_pyspark_column_or_name_enabler():
+def test_pyspark_column_or_name_enabler(spark):
+    # It require spark session in the decorator
     @pyspark_column_or_name_enabler("col1", "col2")
     def test_function(col1, col2, col3):
         return col1, col2, col3
@@ -19,7 +21,7 @@ def test_pyspark_column_or_name_enabler():
     assert isinstance(result[2], str)
 
     # Test with Column input
-    col_input = Column("col_name")
+    col_input = F.col("col_name")
     result = test_function(col_input, "name2", col_input)
     assert result[0] is col_input
     assert isinstance(result[1], Column)

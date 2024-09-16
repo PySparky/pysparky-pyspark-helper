@@ -10,4 +10,6 @@ pylint --generate-rcfile > .pylintrc
 pylint pysparky
 black .
 isort .
+
+pytest
 ```
