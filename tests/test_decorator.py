@@ -1,7 +1,7 @@
 import pytest
 from pyspark.sql import Column, SparkSession
 
-SparkSession.builder.getOrCreate()  # Needed for creating the Spark
+# SparkSession.builder.getOrCreate()  # Needed for creating the Spark
 
 # Now import the decorators
 from pysparky.decorator import extension_enabler, pyspark_column_or_name_enabler

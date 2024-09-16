@@ -1,3 +1,6 @@
-from pyspark.sql import SparkSession
+import pytest
 
-spark = SparkSession.builder.getOrCreate()
+@pytest.fixture
+def spark_fixture():
+    spark = SparkSession.builder.appName("Testing PySpark Example").getOrCreate()
+    yield spark
