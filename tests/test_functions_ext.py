@@ -2,7 +2,6 @@ import pytest
 from pyspark.sql import Column, SparkSession
 from pyspark.sql import functions as F
 
-
 from pysparky.functions_ext import _lower, chain, startswiths
 from pysparky.spark_ext import column_function
 
