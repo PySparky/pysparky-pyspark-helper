@@ -94,7 +94,7 @@ def startswiths(
 @decorator.pyspark_column_or_name_enabler("column_or_name")
 def replace_strings_to_none(
     column_or_name: str | Column,
-    list_of_null_string: Tuple[str],
+    list_of_null_string: list[str],
     customize_output: Any = None,
 ) -> pyspark.sql.Column:
     """
