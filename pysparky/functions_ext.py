@@ -1,4 +1,5 @@
 import functools
+import itertools
 import operator
 from typing import Any
 
@@ -6,7 +7,7 @@ import pyspark
 from pyspark.sql import Column
 from pyspark.sql import functions as F
 
-from pysparky import decorator
+from pysparky import decorator, utils
 
 
 @decorator.extension_enabler(Column)
@@ -104,10 +105,55 @@ def replace_strings_to_none(
     Returns:
     Column: A Spark DataFrame column with the values replaced.
     """
-    column_or_name = (
-        F.col(column_or_name) if isinstance(column_or_name, str) else column_or_name
-    )
 
     return F.when(column_or_name.isin(list_of_null_string), customize_output).otherwise(
         column_or_name
     )
+
+@decorator.extension_enabler(Column)
+@decorator.pyspark_column_or_name_enabler("column_or_name")
+def single_space_and_trim(column_or_name: pyspark.sql.Column) -> pyspark.sql.Column:
+    """
+    Replaces all multiple white spaces with a single space and trims the column.
+
+    Args:
+        col (pyspark.sql.Column): The column which needs to be spaced.
+
+    Returns:
+        pyspark.sql.Column: A trimmed column with single spaces.
+    """
+    return F.trim(F.regexp_replace(column_or_name, r"\s+", " "))
+
+@decorator.extension_enabler(Column)
+@decorator.pyspark_column_or_name_enabler("column_or_name")
+def map_column(column_or_name: str, dict_: dict) -> Column:
+    """
+    Retrieves a value from a map (dictionary) using a key derived from a specified column in a DataFrame.
+
+    This function creates a map from the provided dictionary and then looks up the value in the map
+    corresponding to the key that matches the value in the specified column.
+
+    Args:
+    map (dict): A dictionary where keys and values are the elements to be used in the map.
+    column_name (str): The name of the column in the DataFrame whose value will be used as the key to look up in the map.
+
+    Returns:
+    Column: A PySpark Column object representing the value retrieved from the map.
+
+    Example:
+    >>> map = {1: 'a', 2: 'b'}
+    >>> column_name = 'key_column'
+    >>> df = spark.createDataFrame([(1,), (2,)], ['key_column'])
+    >>> df.withColumn('value', get_value_from_map(map, column_name)).show()
+    +----------+-----+
+    |key_column|value|
+    +----------+-----+
+    |         1|    a|
+    |         2|    b|
+    +----------+-----+
+    """
+    return utils.create_map_from_dict(dict_)[
+        F.col(column_or_name)
+    ]
+
+
