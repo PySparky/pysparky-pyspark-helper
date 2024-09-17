@@ -1,8 +1,10 @@
-from pyspark.sql import functions as F
 import itertools
 
+from pyspark.sql import functions as F
+from pyspark.sql.column import Column
 
-def create_map_from_dict(dict_):
+
+def create_map_from_dict(dict_: dict[str, int]) -> Column:
     """
     Creates a PySpark map column from a given dictionary.
 

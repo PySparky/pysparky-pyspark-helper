@@ -71,7 +71,7 @@ def column_function(spark, column_obj: Column):
 
 
 @decorator.extension_enabler(pyspark.sql.SparkSession)
-def convertdict__to_dataframe(
+def convert_dict_to_dataframe(
     spark, dict_: dict[str, Any], column_names: list[str], explode: bool = False
 ) -> pyspark.sql.DataFrame:
     """

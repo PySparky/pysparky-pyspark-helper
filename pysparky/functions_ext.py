@@ -110,23 +110,25 @@ def replace_strings_to_none(
         column_or_name
     )
 
+
 @decorator.extension_enabler(Column)
 @decorator.pyspark_column_or_name_enabler("column_or_name")
-def single_space_and_trim(column_or_name: pyspark.sql.Column) -> pyspark.sql.Column:
+def single_space_and_trim(column_or_name: str | Column) -> Column:
     """
     Replaces all multiple white spaces with a single space and trims the column.
 
     Args:
-        col (pyspark.sql.Column): The column which needs to be spaced.
+        column_or_name (Column): The column which needs to be spaced.
 
     Returns:
-        pyspark.sql.Column: A trimmed column with single spaces.
+        Column: A trimmed column with single spaces.
     """
     return F.trim(F.regexp_replace(column_or_name, r"\s+", " "))
 
+
 @decorator.extension_enabler(Column)
 @decorator.pyspark_column_or_name_enabler("column_or_name")
-def map_column(column_or_name: str, dict_: dict) -> Column:
+def get_value_from_map(column_or_name: str | Column, dict_: dict) -> Column:
     """
     Retrieves a value from a map (dictionary) using a key derived from a specified column in a DataFrame.
 
@@ -152,8 +154,4 @@ def map_column(column_or_name: str, dict_: dict) -> Column:
     |         2|    b|
     +----------+-----+
     """
-    return utils.create_map_from_dict(dict_)[
-        F.col(column_or_name)
-    ]
-
-
+    return utils.create_map_from_dict(dict_)[column_or_name]
