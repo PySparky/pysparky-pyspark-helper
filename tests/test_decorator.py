@@ -9,7 +9,6 @@ from pysparky.decorator import (extension_enabler,
 # SparkSession.builder.getOrCreate()  # Needed for creating the Spark
 
 
-
 def test_pyspark_column_or_name_enabler(spark):
     # It require spark session in the decorator
     @pyspark_column_or_name_enabler("col1", "col2")

@@ -3,7 +3,8 @@ from pyspark.sql import Column, SparkSession
 from pyspark.sql import functions as F
 
 import pysparky.functions_ext as F_
-from pysparky.functions_ext import _lower, chain, startswiths, replace_strings_to_none
+from pysparky.functions_ext import (_lower, chain, replace_strings_to_none,
+                                    startswiths)
 from pysparky.spark_ext import column_function
 
 
@@ -33,23 +34,29 @@ def test_chain(spark):
     test1 = spark.column_function(F.lit("HELLO").chain(F.lower)).collect()
     assert target == test1
 
+
 def test_replace_strings_to_none(spark):
-    target_sdf = spark.createDataFrame(
-        [("data",), (None,), (None,)], ["output"]
-    )
+    target_sdf = spark.createDataFrame([("data",), (None,), (None,)], ["output"])
 
     test_sdf = spark.createDataFrame(
-        [("data",), ("",), (" ",),]
+        [
+            ("data",),
+            ("",),
+            (" ",),
+        ]
     ).select(F_.replace_strings_to_none("_1", ["", " "]).alias("output"))
 
     test2_sdf = spark.createDataFrame(
-        [("data",), ("",), (" ",),]
-    ).select(
-        F.col("_1").replace_strings_to_none(["", " "]).alias("output")
-    )
-    
+        [
+            ("data",),
+            ("",),
+            (" ",),
+        ]
+    ).select(F.col("_1").replace_strings_to_none(["", " "]).alias("output"))
+
     # it will raise error with assertDataFrameEqual if there is an error
     assert test_sdf.collect() == target_sdf.collect()
+
 
 if __name__ == "__main__":
     pytest.main()

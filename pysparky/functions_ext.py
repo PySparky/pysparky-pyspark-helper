@@ -17,8 +17,6 @@ def _lower(col: Column) -> Column:
     return F.lower(col)
 
 
-
-
 @decorator.extension_enabler(Column)
 def chain(self, func, *args, **kwargs) -> Column:
     """
@@ -90,6 +88,7 @@ def startswiths(
         F.lit(False),
     ).alias(f"startswiths_len{len(list_of_string)}")
 
+
 @decorator.extension_enabler(Column)
 @decorator.pyspark_column_or_name_enabler("column_or_name")
 def replace_strings_to_none(
@@ -105,7 +104,9 @@ def replace_strings_to_none(
     Returns:
     Column: A Spark DataFrame column with the values replaced.
     """
-    column_or_name = F.col(column_or_name) if isinstance(column_or_name, str) else column_or_name
+    column_or_name = (
+        F.col(column_or_name) if isinstance(column_or_name, str) else column_or_name
+    )
 
     return F.when(column_or_name.isin(list_of_null_string), customize_output).otherwise(
         column_or_name
