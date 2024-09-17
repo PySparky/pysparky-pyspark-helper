@@ -5,7 +5,6 @@ from pyspark.sql import functions as F
 from pysparky import decorator
 
 
-# the fuction is having some error, need changes
 @decorator.extension_enabler(pyspark.sql.DataFrame)
 def get_latest_record_from_column(
     sdf: pyspark.sql.DataFrame,
@@ -30,7 +29,7 @@ def get_latest_record_from_column(
         DataFrame: The resulting DataFrame containing the latest record for each partition.
     """
     if not isinstance(window_order_by_column_names, list):
-        window_order_by_column_names = list(window_order_by_column_names)
+        window_order_by_column_names = [window_order_by_column_names]
 
     return (
         sdf.withColumn(

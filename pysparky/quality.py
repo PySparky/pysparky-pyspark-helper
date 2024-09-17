@@ -2,6 +2,7 @@ from typing import Sequence
 
 from pyspark.sql import functions as F
 
+
 def expect_type(col_name, col_type):
     """
     A decorator function that asserts the data type of a specific column in a Spark DataFrame.
@@ -20,7 +21,7 @@ def expect_type(col_name, col_type):
     def decorator(func):
         def wrapper(*args, **kwargs):
             spark_table_sdf = func(*args, **kwargs)
-            source_type = spark_table_sdf.schema.__getitem__(col_name).dataType
+            source_type = spark_table_sdf.schema[col_name].dataType
             target_type = col_type
             assert (
                 source_type == target_type
