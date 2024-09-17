@@ -1,13 +1,7 @@
-import functools
-import itertools
-import operator
-from typing import Any
-
-import pyspark
 from pyspark.sql import Column
 from pyspark.sql import functions as F
 
-from pysparky import decorator, utils
+from pysparky import decorator
 
 
 @decorator.extension_enabler(Column)
@@ -33,7 +27,7 @@ def haversine_distance(
     Example:
         # 923.8038067341608
         haversine_distance(F.lit(52.1552), F.lit(5.3876), F.lit(59.9111), F.lit(10.7503))
-    """  # noqa: E501
+    """
     # Convert latitude and longitude from degrees to radians
     lat1_randians = F.radians(lat1)
     long1_randians = F.radians(long1)

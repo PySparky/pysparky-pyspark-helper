@@ -1,3 +1,4 @@
+import pytest
 from pyspark.sql import functions as F
 
 from pysparky import functions_math
@@ -45,3 +46,7 @@ def test_haversine_distance(spark):
         .collect()[0][0]
     )
     assert distance_km_round4 == target_value
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

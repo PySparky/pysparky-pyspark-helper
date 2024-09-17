@@ -1,5 +1,4 @@
 import functools
-import itertools
 import operator
 from typing import Any
 
@@ -11,7 +10,7 @@ from pysparky import decorator, utils
 
 
 @decorator.extension_enabler(Column)
-def _lower(col: Column) -> Column:
+def lower_(col: Column) -> Column:
     """
     This serve as an easy example on how this package work
     """

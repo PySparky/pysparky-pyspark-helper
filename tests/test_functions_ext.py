@@ -3,7 +3,7 @@ from pyspark.sql import Column, SparkSession
 from pyspark.sql import functions as F
 
 import pysparky.functions_ext as F_
-from pysparky.functions_ext import (_lower, chain, replace_strings_to_none,
+from pysparky.functions_ext import (chain, lower_, replace_strings_to_none,
                                     single_space_and_trim, startswiths)
 from pysparky.spark_ext import column_function
 
@@ -11,8 +11,8 @@ from pysparky.spark_ext import column_function
 def test_lower(spark):
 
     target = spark.column_function(F.lit("hello")).collect()
-    test1 = spark.column_function(F_._lower(F.lit("HELLO"))).collect()
-    test2 = spark.column_function(F.lit("HELLO")._lower()).collect()
+    test1 = spark.column_function(F_.lower_(F.lit("HELLO"))).collect()
+    test2 = spark.column_function(F.lit("HELLO").lower_()).collect()
     assert target == test1
     assert target == test2
 
