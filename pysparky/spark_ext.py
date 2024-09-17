@@ -1,14 +1,14 @@
 from typing import Any
 
 import pyspark
-from pyspark.sql import Column
+from pyspark.sql import Column, DataFrame, SparkSession
 from pyspark.sql import functions as F
 
 from pysparky import decorator
 
 
-@decorator.extension_enabler(pyspark.sql.SparkSession)
-def column_function(spark, column_obj: Column):
+@decorator.extension_enabler(SparkSession)
+def column_function(spark, column_obj: Column) -> DataFrame:
     """
     Evaluates a Column expression in the context of a single-row DataFrame.
 
@@ -70,10 +70,10 @@ def column_function(spark, column_obj: Column):
     return spark.range(1).select(column_obj)
 
 
-@decorator.extension_enabler(pyspark.sql.SparkSession)
+@decorator.extension_enabler(SparkSession)
 def convert_dict_to_dataframe(
     spark, dict_: dict[str, Any], column_names: list[str], explode: bool = False
-) -> pyspark.sql.DataFrame:
+) -> DataFrame:
     """
     Converts a dictionary with list values into a Spark DataFrame.
 
@@ -109,3 +109,18 @@ def convert_dict_to_dataframe(
         output_sdf = output_sdf.withColumn(column_names[1], F.explode(column_names[1]))
 
     return output_sdf
+
+@decorator.extension_enabler(SparkSession)
+@decorator.column_name_or_column_names_enabler("column_names")
+def convert_1d_list_to_dataframe(spark, list_, column_names, axis="column"):
+    if axis not in ["column", "row"]:
+        raise AttributeError
+    
+    if axis == "column":
+        tuple_list = ((x,) for x in list_)
+        out_sdf = spark.createDataFrame(tuple_list, schema=column_names)
+    elif axis == "row":
+        tuple_list = (tuple(list_),)
+        out_sdf = spark.createDataFrame(tuple_list, schema=column_names)
+    return out_sdf
+
