@@ -1,5 +1,4 @@
 import pytest
-from pyspark.sql import Column, SparkSession
 from pyspark.sql import functions as F
 
 import pysparky.functions_ext as F_
