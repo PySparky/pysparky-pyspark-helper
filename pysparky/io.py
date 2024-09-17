@@ -6,8 +6,8 @@ from typing import Callable
 
 @decorator.extension_enabler(pyspark.sql.DataFrame)
 def try_merge_or_overwrite(
-    target_table_name: str,
     source_sdf: DataFrame,
+    target_table_name: str,
     merge_condition: Column,
     matched_condition: Column,
     custom_overwrite_function: Callable = None,
