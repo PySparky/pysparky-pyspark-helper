@@ -1,8 +1,8 @@
 import pytest
 from pyspark.sql import functions as F
 
-import pysparky.functions_ext as F_
-from pysparky.functions_ext import (chain, lower_, replace_strings_to_none,
+import pysparky.functions as F_
+from pysparky.functions.general import (chain, lower_, replace_strings_to_none,
                                     single_space_and_trim, startswiths)
 from pysparky.spark_ext import column_function
 

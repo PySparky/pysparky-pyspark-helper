@@ -1,7 +1,8 @@
 import pytest
 from pyspark.sql import functions as F
 
-from pysparky import functions_math
+from pysparky.functions.math_ import haversine_distance
+from pysparky import functions as F_
 
 
 def test_haversine_distance(spark):
@@ -39,13 +40,24 @@ def test_haversine_distance(spark):
     target_value = (
         spark.range(1)
         .select(
-            functions_math.haversine_distance(
+            haversine_distance(
                 F.lit(52.1552), F.lit(5.3876), F.lit(59.9111), F.lit(10.7503)
             )
         )
         .collect()[0][0]
     )
     assert distance_km_round4 == target_value
+
+    target_value2 = (
+        spark.range(1)
+        .select(
+            F_.haversine_distance(
+                F.lit(52.1552), F.lit(5.3876), F.lit(59.9111), F.lit(10.7503)
+            )
+        )
+        .collect()[0][0]
+    )
+    assert distance_km_round4 == target_value2
 
 
 if __name__ == "__main__":
