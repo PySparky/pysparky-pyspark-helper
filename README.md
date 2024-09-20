@@ -19,8 +19,7 @@ pytest
 
 # TODO
 - Change pytest test case
-- Change the visibility to Public
-- Build mkdocs
+- Build mkdocs -> to make it standard to ingest to MkDocs
 - Build wheels for PyPi
 
 # Reference:
