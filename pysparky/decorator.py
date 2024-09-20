@@ -49,6 +49,7 @@ def pyspark_column_or_name_enabler(*param_names):
 
     return decorator
 
+
 def column_name_or_column_names_enabler(*param_names):
     """
     A decorator to enable PySpark functions to accept either column names (as strings) or Column objects.

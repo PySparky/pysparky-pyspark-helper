@@ -1,8 +1,8 @@
 import pytest
 from pyspark.sql import functions as F
 
-from pysparky.functions.math_ import haversine_distance
 from pysparky import functions as F_
+from pysparky.functions.math_ import haversine_distance
 
 
 def test_haversine_distance(spark):

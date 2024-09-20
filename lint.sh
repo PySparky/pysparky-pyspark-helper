@@ -1,4 +1,4 @@
 black .
-isort .
+python -m isort .
 pylint pysparky
 pytest

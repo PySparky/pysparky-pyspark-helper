@@ -20,5 +20,5 @@ df.show()
 # pyspark.sql.SparkSession.convert_dict_to_dataframe = se.convert_dict_to_dataframe
 spark.convert_dict_to_dataframe(data_dict, column_names, explode=True).show()
 dict_.items()
-my_list = [1,2,3,4]
+my_list = [1, 2, 3, 4]
 spark.createDataFrame(my_list).show()

@@ -1,6 +1,5 @@
 from typing import Any
 
-import pyspark
 from pyspark.sql import Column, DataFrame, SparkSession
 from pyspark.sql import functions as F
 
@@ -110,17 +109,60 @@ def convert_dict_to_dataframe(
 
     return output_sdf
 
+
 @decorator.extension_enabler(SparkSession)
 @decorator.column_name_or_column_names_enabler("column_names")
 def convert_1d_list_to_dataframe(spark, list_, column_names, axis="column"):
+    """
+    Converts a 1-dimensional list into a PySpark DataFrame.
+
+    This function takes a 1-dimensional list and converts it into a PySpark DataFrame
+    with the specified column names. The list can be converted into a DataFrame with
+    either a single column or a single row, based on the specified axis.
+
+    Parameters:
+    spark (SparkSession): The Spark session to use for creating the DataFrame.
+    list_ (list): The 1-dimensional list to convert.
+    column_names (str or list of str): The name(s) of the column(s) for the DataFrame.
+    axis (str): Specifies whether to convert the list into a single column or a single row.
+                Acceptable values are "column" (default) and "row".
+
+    Returns:
+    DataFrame: A PySpark DataFrame created from the 1-dimensional list.
+
+    Raises:
+    AttributeError: If the axis parameter is not "column" or "row".
+
+    Example:
+    >>> spark = SparkSession.builder.appName("example").getOrCreate()
+    >>> list_ = [1, 2, 3, 4]
+    >>> column_names = ["numbers"]
+    >>> df = convert_1d_list_to_dataframe(spark, list_, column_names, axis="column")
+    >>> df.show()
+    +-------+
+    |numbers|
+    +-------+
+    |      1|
+    |      2|
+    |      3|
+    |      4|
+    +-------+
+    >>> column_names = ["ID1", "ID2", "ID3", "ID4"]
+    >>> df = convert_1d_list_to_dataframe(spark, list_, column_names, axis="row")
+    >>> df.show()
+    +---+---+---+---+
+    |ID1|ID2|ID3|ID4|
+    +---+---+---+---+
+    |  1|  2|  3|  4|
+    +---+---+---+---+
+    """
     if axis not in ["column", "row"]:
         raise AttributeError
-    
+
     if axis == "column":
         tuple_list = ((x,) for x in list_)
-        out_sdf = spark.createDataFrame(tuple_list, schema=column_names)
+        output_sdf = spark.createDataFrame(tuple_list, schema=column_names)
     elif axis == "row":
         tuple_list = (tuple(list_),)
-        out_sdf = spark.createDataFrame(tuple_list, schema=column_names)
-    return out_sdf
-
+        output_sdf = spark.createDataFrame(tuple_list, schema=column_names)
+    return output_sdf

@@ -1,12 +1,9 @@
 import pytest
-from pyspark.sql import Column, SparkSession
+from pyspark.sql import Column
 from pyspark.sql import functions as F
 
 # Now import the decorators
-from pysparky.decorator import (extension_enabler,
-                                pyspark_column_or_name_enabler)
-
-# SparkSession.builder.getOrCreate()  # Needed for creating the Spark
+from pysparky.decorator import extension_enabler, pyspark_column_or_name_enabler
 
 
 def test_pyspark_column_or_name_enabler(spark):
