@@ -70,17 +70,15 @@ def startswiths(
     column_or_name: str | Column, list_of_string: list[str]
 ) -> pyspark.sql.Column:
     """
-    Creates a PySpark Column expression that checks if the given column starts with any of the strings in the list.
+    Creates a PySpark Column expression to check if the given column starts with any string in the list.
 
     Args:
         column_or_name (ColumnOrName): The column to check.
-        list_of_string (List[str]): A list of strings to check if the column starts with.
+        list_of_strings (List[str]): A list of strings to check if the column starts with.
 
     Returns:
-        Column: A PySpark Column expression that evaluates to True if the column starts with any of the strings in the list, otherwise False.
+        Column: A PySpark Column expression that evaluates to True if the column starts with any string in the list, otherwise False.
     """
-    # If we are not using the decorator
-    # column_or_name = F.col(column_or_name) if isinstance(column_or_name, str) else column_or_name
 
     return functools.reduce(
         operator.or_,
@@ -98,11 +96,12 @@ def replace_strings_to_none(
 ) -> pyspark.sql.Column:
     """
     Replaces empty string values in a column with None.
-    Parameters:
-    column_or_name (ColumnOrName): The name of the column to check for empty string values.
+
+    Args:
+        column_or_name (ColumnOrName): The column to check for empty string values.
 
     Returns:
-    Column: A Spark DataFrame column with the values replaced.
+        Column: A Spark DataFrame column with the values replaced.
     """
 
     return F.when(column_or_name.isin(list_of_null_string), customize_output).otherwise(
@@ -114,14 +113,15 @@ def replace_strings_to_none(
 @decorator.pyspark_column_or_name_enabler("column_or_name")
 def single_space_and_trim(column_or_name: str | Column) -> Column:
     """
-    Replaces all multiple white spaces with a single space and trims the column.
+    Replaces multiple white spaces with a single space and trims the column.
 
     Args:
-        column_or_name (Column): The column which needs to be spaced.
+        column_or_name (Column): The column to be adjusted.
 
     Returns:
         Column: A trimmed column with single spaces.
     """
+
     return F.trim(F.regexp_replace(column_or_name, r"\s+", " "))
 
 

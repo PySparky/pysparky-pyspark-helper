@@ -13,21 +13,19 @@ def get_latest_record_from_column(
     window_function: pyspark.sql.Column = F.row_number,
 ) -> pyspark.sql.DataFrame:
     """
-    Returns the latest record from a DataFrame based on a specified column. You have to specify your own desc asc
+    Fetches the most recent record from a DataFrame based on a specified column, allowing for custom sorting order.
 
     Parameters:
-        sdf (DataFrame): The input DataFrame.
-        window_partition_column_name (str): The column used for partitioning the DataFrame.
-        window_order_by_column_names (str | list): The column used for ordering the DataFrame.
-        is_desc (bool, optional): The order in which the DataFrame is sorted. Can be either True(desc) or False(asc).
-            Defaults to True.
-        window_function (Column, optional): The window function to be used for ranking the records.
-            Defaults to F.row_number.
-
+        sdf (DataFrame): The DataFrame to process.
+        window_partition_column_name (str): The column used to partition the DataFrame.
+        window_order_by_column_names (str | list): The column(s) used to sort the DataFrame.
+        is_desc (bool, optional): Determines the sorting order. Set to True for descending (default) or False for ascending.
+        window_function (Column, optional): The window function for ranking records. Defaults to F.row_number.
 
     Returns:
-        DataFrame: The resulting DataFrame containing the latest record for each partition.
+        DataFrame: A DataFrame with the most recent record for each partition.
     """
+
     if not isinstance(window_order_by_column_names, list):
         window_order_by_column_names = [window_order_by_column_names]
 

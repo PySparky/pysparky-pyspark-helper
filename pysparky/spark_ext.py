@@ -74,14 +74,14 @@ def convert_dict_to_dataframe(
     spark, dict_: dict[str, Any], column_names: list[str], explode: bool = False
 ) -> DataFrame:
     """
-    Converts a dictionary with list values into a Spark DataFrame.
+    Transforms a dictionary with list values into a Spark DataFrame.
 
     Args:
-        dict_ (dict): The dictionary to convert. Keys will be the first column, values will be the second column.
-        column_names (list[str]): List containing the names of the columns.
+        dict_ (dict): The dictionary to transform. Keys will become the first column, and values will become the second column.
+        column_names (list[str]): A list containing the names of the columns.
 
     Returns:
-        pyspark.sql.DataFrame: A DataFrame with the dictionary keys and exploded list values.
+        pyspark.sql.DataFrame: A DataFrame with the dictionary keys and their corresponding exploded list values.
 
     Example:
         datadict_ = {
@@ -89,7 +89,7 @@ def convert_dict_to_dataframe(
             "key2": 2
         }
         column_names = ["keys", "values"]
-        df = convertdict__to_dataframe(datadict_, column_names)
+        df = convert_dict_to_dataframe(datadict_, column_names)
         display(df)
         # key1,1
         # key2,2

@@ -5,18 +5,18 @@ from pyspark.sql import functions as F
 
 def expect_type(col_name, col_type):
     """
-    A decorator function that asserts the data type of a specific column in a Spark DataFrame.
+    A decorator function that verifies the data type of a specified column in a Spark DataFrame.
 
     Parameters:
-    col_name (str): The name of the column.
-    col_type (pyspark.sql.types.DataType): The expected data type of the column.
+        col_name (str): The column's name.
+        col_type (pyspark.sql.types.DataType): The expected data type for the column.
 
     Returns:
-    function: A decorated function that performs the assertion on the data type of the column.
+        function: A decorated function that checks the column's data type.
 
     Raises:
-    AssertionError: If the data type of the column does not match the expected data type.
-    """  # noqa: E501
+        AssertionError: If the column's data type does not match the expected type.
+    """
 
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -36,17 +36,17 @@ def expect_type(col_name, col_type):
 
 def expect_unique(col_name):
     """
-    A decorator function that asserts the uniqueness of a column in a Spark DataFrame.
+    A decorator function that ensures the uniqueness of a column in a Spark DataFrame.
 
     Parameters:
-    col_name (str): The name of the column.
+        col_name (str): The column's name.
 
     Returns:
-    function: A decorated function that performs the assertion on the uniqueness of the column.
+        function: A decorated function that checks the column's uniqueness.
 
     Raises:
-    AssertionError: If the count and distinct count of the column are not equal.
-    """  # noqa: E501
+        AssertionError: If the column's count and distinct count are not equal.
+    """
 
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -67,17 +67,17 @@ def expect_unique(col_name):
 
 def expect_criteria(criteria):
     """
-    A decorator function that asserts a specific criteria on a Spark DataFrame.
+    A decorator function that ensures a specific criterion on a Spark DataFrame.
 
     Parameters:
-    criteria (pyspark.sql.column.Column): The filter criteria to be applied on the DataFrame.
+        criteria (pyspark.sql.column.Column): The filter criterion to be applied to the DataFrame.
 
     Returns:
-    function: A decorated function that performs the assertion on the criteria.
+        function: A decorated function that checks the criterion.
 
     Raises:
-    AssertionError: If the filtered count and unfiltered count of the DataFrame are not equal.
-    """  # noqa: E501
+        AssertionError: If the filtered count and unfiltered count of the DataFrame are not equal.
+    """
 
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -97,13 +97,13 @@ def expect_criteria(criteria):
 
 def expect_any_to_one(col1: str | Sequence[str], col2: str | Sequence[str]):
     """
-    A decorator function that asserts that there is a N:1 relationship between col1 and col2.
-    i.e. there is only one distinct value in col2 for each value in col1.
+    A decorator function that ensures an N:1 relationship between col1 and col2,
+    meaning each value in col1 corresponds to only one distinct value in col2.
 
     Args:
-        col1 (str|Sequence[str]): Name of column or tuple of column names.
-        col2 (str|Sequence[str]): Name of column or tuple of column names.
-    """  # noqa: E501
+        col1 (str | Sequence[str]): Name of the column or a tuple of column names.
+        col2 (str | Sequence[str]): Name of the column or a tuple of column names.
+    """
 
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -127,13 +127,14 @@ def expect_any_to_one(col1: str | Sequence[str], col2: str | Sequence[str]):
 
 def expect_one_to_one(col1: str | Sequence[str], col2: str | Sequence[str]):
     """
-    A decorator function that asserts that there is a 1:1 relationship between col1 and col2.
-    i.e. there is only one distinct value in col1 for each value in col2 and vice-versa.
+    A decorator function that ensures a 1:1 relationship between col1 and col2,
+    meaning each value in col1 corresponds to only one distinct value in col2 and vice-versa.
 
     Args:
-        col1 (str|Sequence[str]): Name of column or tuple of column names.
-        col2 (str|Sequence[str]): Name of column or tuple of column names.
-    """  # noqa: E501
+        col1 (str | Sequence[str]): Name of the column or a tuple of column names.
+        col2 (str | Sequence[str]): Name of the column or a tuple of column names.
+    """
+
     any_to_one = expect_any_to_one(col1, col2)
     one_to_any = expect_any_to_one(col2, col1)
 
