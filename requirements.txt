@@ -4,3 +4,4 @@ isort
 pyarrow
 # build
 mkdocs-material
+mkdocstrings-python
