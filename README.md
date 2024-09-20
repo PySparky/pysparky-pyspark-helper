@@ -13,3 +13,9 @@ isort .
 
 pytest
 ```
+
+# TODO
+- Change the text in docstring
+- Change the visibility to Public
+- Build mkdocs
+- Build wheels for PyPi
