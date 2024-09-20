@@ -26,4 +26,4 @@ pytest
 
 # Reference:
 > https://github.com/apache/spark/tree/master/python/pyspark
-> https://github.com/mrpowers-io/quinn/tree/planning-1.0-release
+> https://github.com/mrpowers-io/quinn
