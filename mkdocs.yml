@@ -2,3 +2,4 @@ site_name: PySparky
 site_url: https://pysparky.github.io/pysparky-pyspark-helper/
 theme:
   name: material
+  
