@@ -15,7 +15,6 @@ pytest
 ```
 
 # TODO
-- Change the text in docstring
 - Change pytest test case
 - Change the visibility to Public
 - Build mkdocs
