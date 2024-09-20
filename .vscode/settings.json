@@ -1,4 +1,11 @@
 {
+    "files.autoSave": "onFocusChange",
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "notebook.defaultFormatter": "ms-python.black-formatter",
+    "notebook.formatOnCellExecution": true,
+    "notebook.formatOnSave.enabled": true,
     "python.testing.pytestArgs": [
         "tests"
     ],
