@@ -7,7 +7,6 @@ This repository is designed to replicate the structure of PySpark, making it hig
 - The `Spark_ext`  houses functions that necessitate a Spark instance, such as creating a DataFrame.
 - The `transformation_ext`  includes functions associated with DataFrame transformations, where both the input and output are DataFrames
 
-
 # Lint
 ```
 pylint --generate-rcfile > .pylintrc
