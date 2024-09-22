@@ -1,3 +1,5 @@
+from operator import and_, or_
+
 import pytest
 from pyspark.sql import functions as F
 
@@ -24,6 +26,19 @@ def test_filters(spark):
     assert (3, "c") in result
     assert (1, "a") not in result
     assert (4, "d") not in result
+
+    # Apply the filters function
+    result_or_df = te.filters(df, conditions, or_)
+
+    # Convert the result to a list for easy assertion
+    result = result_or_df.collect()
+
+    # Assert the expected output
+    assert len(result) == 3
+    assert (2, "b") in result
+    assert (3, "c") in result
+    assert (1, "a") not in result
+    assert (4, "d") in result
 
 
 def test_filters_empty_result(spark):
