@@ -1,17 +1,60 @@
-import pyspark
-from pyspark.sql import Window
+from functools import reduce
+from operator import and_
+from typing import Callable
+
+from pyspark.sql import Column, DataFrame, Window
 from pyspark.sql import functions as F
 
 from pysparky import decorator
 
 
-@decorator.extension_enabler(pyspark.sql.DataFrame)
+@decorator.extension_enabler(DataFrame)
+def filters(
+    sdf: DataFrame, conditions: list[Column], operator_: Callable = and_
+) -> DataFrame:
+    """
+    Apply multiple filter conditions to a Spark DataFrame.
+
+    This function takes a Spark DataFrame and a list of conditions, and returns
+    a new DataFrame with all conditions applied using AND logic.
+
+    Args:
+        sdf (pyspark.sql.DataFrame): The input Spark DataFrame to be filtered.
+        conditions (list[pyspark.sql.Column]): A list of Column expressions
+            representing the filter conditions.
+
+    Returns:
+        pyspark.sql.DataFrame: A new DataFrame with all filter conditions applied.
+
+    Example:
+        >>> from pyspark.sql.functions import col
+        >>> df = spark.createDataFrame([(1, 'a'), (2, 'b'), (3, 'c')], ['id', 'letter'])
+        >>> conditions = [col('id') > 1, col('letter').isin(['b', 'c'])]
+        >>> filtered_df = filters(df, conditions)
+        >>> filtered_df.show()
+        +---+------+
+        | id|letter|
+        +---+------+
+        |  2|     b|
+        |  3|     c|
+        +---+------+
+
+    Note:
+        This function uses `functools.reduce` and `pyspark.sql.functions.and_`
+        to combine multiple conditions efficiently.
+    """
+    if len(conditions) == 0:
+        return sdf
+    return sdf.filter(reduce(operator_, conditions))
+
+
+@decorator.extension_enabler(DataFrame)
 def get_latest_record_from_column(
-    sdf: pyspark.sql.DataFrame,
+    sdf: DataFrame,
     window_partition_column_name: str,
     window_order_by_column_names: str | list,
-    window_function: pyspark.sql.Column = F.row_number,
-) -> pyspark.sql.DataFrame:
+    window_function: Column = F.row_number,
+) -> DataFrame:
     """
     Fetches the most recent record from a DataFrame based on a specified column, allowing for custom sorting order.
 
