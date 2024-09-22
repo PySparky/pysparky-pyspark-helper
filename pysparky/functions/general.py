@@ -12,7 +12,7 @@ from pysparky import decorator, utils
 @decorator.extension_enabler(Column)
 def lower_(col: Column) -> Column:
     """
-    This serve as an easy example on how this package work
+    This serve as an easy Examples on how this package work
     """
     return F.lower(col)
 
@@ -135,22 +135,22 @@ def get_value_from_map(column_or_name: str | Column, dict_: dict) -> Column:
     corresponding to the key that matches the value in the specified column.
 
     Args:
-    map (dict): A dictionary where keys and values are the elements to be used in the map.
-    column_name (str): The name of the column in the DataFrame whose value will be used as the key to look up in the map.
+        map (dict): A dictionary where keys and values are the elements to be used in the map.
+        column_name (str): The name of the column in the DataFrame whose value will be used as the key to look up in the map.
 
     Returns:
-    Column: A PySpark Column object representing the value retrieved from the map.
+        Column: A PySpark Column object representing the value retrieved from the map.
 
-    Example:
-    >>> map = {1: 'a', 2: 'b'}
-    >>> column_name = 'key_column'
-    >>> df = spark.createDataFrame([(1,), (2,)], ['key_column'])
-    >>> df.withColumn('value', get_value_from_map(map, column_name)).show()
-    +----------+-----+
-    |key_column|value|
-    +----------+-----+
-    |         1|    a|
-    |         2|    b|
-    +----------+-----+
+    Examples:
+        >>> map = {1: 'a', 2: 'b'}
+        >>> column_name = 'key_column'
+        >>> df = spark.createDataFrame([(1,), (2,)], ['key_column'])
+        >>> df.withColumn('value', get_value_from_map(map, column_name)).show()
+        +----------+-----+
+        |key_column|value|
+        +----------+-----+
+        |         1|    a|
+        |         2|    b|
+        +----------+-----+
     """
     return utils.create_map_from_dict(dict_)[column_or_name]
