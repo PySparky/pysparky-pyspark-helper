@@ -28,19 +28,19 @@ def apply_cols(sdf: DataFrame, col_func: callable, cols: list[str] = None) -> Da
 
 
 @decorator.extension_enabler(DataFrame)
-def transforms(sdf: DataFrame, pipeline: list[tuple[Callable, dict]]) -> DataFrame:
+def transforms(sdf: DataFrame, transformations: list[tuple[Callable, dict]]) -> DataFrame:
     """
     Apply a series of transformations to a Spark DataFrame.
 
     Parameters:
     sdf (DataFrame): The input Spark DataFrame to be transformed.
-    pipeline (list): A list of transformations, where each transformation is a tuple
+    transformations (list): A list of transformations, where each transformation is a tuple
                      containing a function and a dictionary of keyword arguments to apply the function to.
 
     Returns:
     DataFrame: The transformed Spark DataFrame.
     """
-    for transformation_funcs, kwarg in pipeline:
+    for transformation_funcs, kwarg in transformations:
         assert callable(transformation_funcs), "transformation_funcs must be callable"
         assert isinstance(kwarg, dict), "kwarg must be a dictionary"
         sdf = sdf.transform(transformation_funcs, **kwarg)
