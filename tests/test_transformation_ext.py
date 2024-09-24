@@ -1,4 +1,5 @@
 from operator import and_, or_
+import functools
 
 import pytest
 from pyspark.sql import functions as F
@@ -19,6 +20,30 @@ def test_apply_cols(spark):
     expected_data = [("1", "JOHN", "DOE"), ("2", "JANE", "SMITH")]
 
     assert result == expected_data
+
+
+def test_transforms(spark):
+    # Define the pipeline
+    upper_cols_partial = functools.partial(te.apply_cols, col_func=F.upper)
+    plus_one_transformation = lambda sdf: sdf.withColumn("id", F.col("id") + 1)
+
+    pipeline = [
+        (upper_cols_partial, {"cols": ["name"]}),
+        (plus_one_transformation, {}),
+    ]
+
+    data = [(1, "John"), (2, "Jane")]
+    df = spark.createDataFrame(data, ["id", "name"])
+    result_df = te.transforms(df, pipeline)
+
+    # Collect the results
+    result = result_df.collect()
+
+    # Expected data
+    expected_data = [(2, "JOHN"), (3, "JANE")]
+
+    # Assert the results
+    assert expected_data == result
 
 
 def test_filters(spark):
