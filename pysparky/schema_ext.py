@@ -8,9 +8,9 @@ from pysparky import decorator
 @decorator.extension_enabler(T.StructType)
 def filter_columns_by_datatype(
     struct_type: T.StructType, data_type: T.DataType
-) -> list:
+) -> T.StructType:
     """
-    Filters and returns a list of StructField names from a given StructType schema
+    Filters and returns a StructType of StructField names from a given StructType schema
     that match the specified data type.
 
     Args:
@@ -18,6 +18,6 @@ def filter_columns_by_datatype(
         data_type (T.DataType): The data type to filter by.
 
     Returns:
-        list: A list of StructField names that match the specified data type.
+        T.StructType: A StructType of StructField names that match the specified data type.
     """
     return T.StructType([field for field in struct_type if field.dataType == data_type])
