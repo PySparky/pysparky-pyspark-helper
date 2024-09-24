@@ -9,6 +9,25 @@ from pysparky import decorator
 
 
 @decorator.extension_enabler(DataFrame)
+def apply_cols(sdf: DataFrame, col_func: callable, cols: list[str] = None) -> DataFrame:
+    """
+    Apply a function to specified columns of a Spark DataFrame.
+
+    Parameters:
+    sdf (DataFrame): The input Spark DataFrame.
+    col_func (callable): The function to apply to each column.
+    cols (list[str], optional): List of column names to apply the function to.
+                                If None, applies to all columns. Defaults to None.
+
+    Returns:
+    DataFrame: A new Spark DataFrame with the function applied to the specified columns.
+    """
+    if cols is None:
+        cols = sdf.columns
+    return sdf.withColumns({col_name: col_func(col_name) for col_name in cols})
+
+
+@decorator.extension_enabler(DataFrame)
 def filters(
     sdf: DataFrame, conditions: list[Column], operator_: Callable = and_
 ) -> DataFrame:

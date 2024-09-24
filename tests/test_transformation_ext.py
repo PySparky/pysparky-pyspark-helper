@@ -6,6 +6,21 @@ from pyspark.sql import functions as F
 from pysparky import transformation_ext as te
 
 
+def test_apply_cols(spark):
+    # Apply the function to the DataFrame
+    data = [("1", "John", "Doe"), ("2", "Jane", "Smith")]
+    df = spark.createDataFrame(data, ["id", "first_name", "last_name"])
+    result_df = te.apply_cols(df, F.upper, ["first_name", "last_name"])
+
+    # Collect the results
+    result = result_df.collect()
+
+    # Expected data
+    expected_data = [("1", "JOHN", "DOE"), ("2", "JANE", "SMITH")]
+
+    assert result == expected_data
+
+
 def test_filters(spark):
     # Create a test DataFrame
     test_data = [(1, "a"), (2, "b"), (3, "c"), (4, "d")]
