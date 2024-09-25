@@ -29,7 +29,7 @@ def test_create_map_from_dict(spark):
     assert result == expected
 
 
-def test_join_on_column(spark):
+def test_join_dataframes_on_column(spark):
     data1 = {"id": [1, 2, 3], "value1": [10, 20, 30]}
     data2 = {"id": [1, 2, 4], "value2": [100, 200, 400]}
     data3 = {"id": [1, 3, 5], "value3": [1000, 3000, 5000]}
@@ -40,7 +40,7 @@ def test_join_on_column(spark):
 
     dataframes = [df1, df2, df3]
 
-    result_df = utils.join_on_column("id", dataframes)
+    result_df = utils.join_dataframes_on_column("id", dataframes)
     result_data = result_df.collect()
 
     expected_data = [
@@ -59,7 +59,7 @@ def test_join_on_column(spark):
     assert result_data == expected_result
 
 
-def test_union_all_dataframes(spark):
+def test_union_dataframes(spark):
     data1 = {"id": [1, 2, 3], "value": [10, 20, 30]}
     data2 = {"id": [4, 5, 6], "value": [40, 50, 60]}
     data3 = {"id": [7, 8, 9], "value": [70, 80, 90]}
@@ -70,7 +70,7 @@ def test_union_all_dataframes(spark):
 
     dataframes = [df1, df2, df3]
 
-    result_df = utils.union_all_dataframes(dataframes)
+    result_df = utils.union_dataframes(dataframes)
     result_data = result_df.collect()
 
     expected_data = [

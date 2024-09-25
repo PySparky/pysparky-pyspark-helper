@@ -28,7 +28,9 @@ def apply_cols(sdf: DataFrame, col_func: Callable, cols: list[str] = None) -> Da
 
 
 @decorator.extension_enabler(DataFrame)
-def transforms(sdf: DataFrame, transformations: list[tuple[Callable, dict]]) -> DataFrame:
+def transforms(
+    sdf: DataFrame, transformations: list[tuple[Callable, dict]]
+) -> DataFrame:
     """
     Apply a series of transformations to a Spark DataFrame.
 
@@ -141,4 +143,40 @@ def get_latest_record_from_column(
         )
         .filter(F.col("temp") == 1)
         .drop("temp")
+    )
+
+
+@decorator.extension_enabler(DataFrame)
+def distinct_value_counts_map(sdf: DataFrame, column_name: str) -> DataFrame:
+    """
+    Get distinct values from a DataFrame column as a map with their counts.
+
+    Args:
+        sdf (DataFrame): The input Spark DataFrame.
+        column_name (str): The name of the column to process.
+
+    Returns:
+        DataFrame: A DataFrame containing a single column with a map of distinct values and their counts.
+
+    Examples:
+        >>> data = [("Alice",), ("Bob",), ("Alice",), ("Eve",), (None,)]
+        >>> sdf = spark.createDataFrame(data, ["name"])
+        >>> result = distinct_value_counts_map(sdf, "name")
+        >>> result.show(truncate=False)
+        +--------------------------+
+        |name_map                  |
+        +--------------------------+
+        |{Alice -> 2, Bob -> 1, Eve -> 1, NONE -> 1}|
+        +--------------------------+
+    """
+    return (
+        sdf.select(column_name)
+        .na.fill("NONE")
+        .groupBy(column_name)
+        .count()
+        .select(
+            F.map_from_entries(F.collect_list(F.struct(column_name, "count"))).alias(
+                f"{column_name}_map"
+            )
+        )
     )
