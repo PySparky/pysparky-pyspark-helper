@@ -71,7 +71,7 @@ def filters(
     Raises:
         ValueError: If an unsupported operator is provided.
 
-    Example:
+    Examples:
         >>> from pyspark.sql.functions import col
         >>> df = spark.createDataFrame([(1, 'a'), (2, 'b'), (3, 'c')], ['id', 'letter'])
         >>> conditions = [col('id') > 1, col('letter').isin(['b', 'c'])]

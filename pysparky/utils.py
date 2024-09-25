@@ -16,7 +16,7 @@ def create_map_from_dict(dict_: dict[str, int]) -> Column:
     Returns:
         Column: A PySpark Column object representing the created map.
 
-    Example:
+    Examples:
         >>> dict_ = {"a": 1, "b": 2}
         >>> map_column = create_map_from_dict(dict_)
     """
