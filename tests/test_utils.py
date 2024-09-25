@@ -1,4 +1,3 @@
-import pandas as pd
 import pytest
 from pyspark.sql import functions as F
 
