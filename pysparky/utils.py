@@ -24,7 +24,9 @@ def create_map_from_dict(dict_: dict[str, int]) -> Column:
     return F.create_map(list(map(F.lit, itertools.chain(*dict_.items()))))
 
 
-def join_dataframes_on_column(column_name: str, dataframes: list[DataFrame]):
+def join_dataframes_on_column(
+    column_name: str, dataframes: list[DataFrame]
+) -> DataFrame:
     """
     Joins a list of DataFrames on a specified column using an outer join.
 
@@ -41,7 +43,7 @@ def join_dataframes_on_column(column_name: str, dataframes: list[DataFrame]):
     return joined_df
 
 
-def union_dataframes(dataframes: list[DataFrame]):
+def union_dataframes(dataframes: list[DataFrame]) -> DataFrame:
     """
     Unions a list of DataFrames.
 

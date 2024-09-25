@@ -67,7 +67,7 @@ def chain(self, func, *args, **kwargs) -> Column:
 @decorator.extension_enabler(Column)
 @decorator.pyspark_column_or_name_enabler("column_or_name")
 def startswiths(
-    column_or_name: str | Column, list_of_string: list[str]
+    column_or_name: str | Column, list_of_strings: list[str]
 ) -> pyspark.sql.Column:
     """
     Creates a PySpark Column expression to check if the given column starts with any string in the list.
@@ -82,9 +82,9 @@ def startswiths(
 
     return functools.reduce(
         operator.or_,
-        map(column_or_name.startswith, list_of_string),
+        map(column_or_name.startswith, list_of_strings),
         F.lit(False),
-    ).alias(f"startswiths_len{len(list_of_string)}")
+    ).alias(f"startswiths_len{len(list_of_strings)}")
 
 
 @decorator.extension_enabler(Column)
@@ -135,8 +135,8 @@ def get_value_from_map(column_or_name: str | Column, dict_: dict) -> Column:
     corresponding to the key that matches the value in the specified column.
 
     Args:
-        map (dict): A dictionary where keys and values are the elements to be used in the map.
-        column_name (str): The name of the column in the DataFrame whose value will be used as the key to look up in the map.
+        column_or_name (str): The name of the column in the DataFrame whose value will be used as the key to look up in the map.
+        dict_ (dict): A dictionary where keys and values are the elements to be used in the map.
 
     Returns:
         Column: A PySpark Column object representing the value retrieved from the map.

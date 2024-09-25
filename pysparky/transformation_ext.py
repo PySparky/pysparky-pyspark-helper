@@ -122,7 +122,6 @@ def get_latest_record_from_column(
         sdf (DataFrame): The DataFrame to process.
         window_partition_column_name (str): The column used to partition the DataFrame.
         window_order_by_column_names (str | list): The column(s) used to sort the DataFrame.
-        is_desc (bool, optional): Determines the sorting order. Set to True for descending (default) or False for ascending.
         window_function (Column, optional): The window function for ranking records. Defaults to F.row_number.
 
     Returns:
