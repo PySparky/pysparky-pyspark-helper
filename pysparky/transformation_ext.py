@@ -9,7 +9,7 @@ from pysparky import decorator
 
 
 @decorator.extension_enabler(DataFrame)
-def apply_cols(sdf: DataFrame, col_func: callable, cols: list[str] = None) -> DataFrame:
+def apply_cols(sdf: DataFrame, col_func: Callable, cols: list[str] = None) -> DataFrame:
     """
     Apply a function to specified columns of a Spark DataFrame.
 
