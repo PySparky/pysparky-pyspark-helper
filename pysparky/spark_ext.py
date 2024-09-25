@@ -166,3 +166,20 @@ def convert_1d_list_to_dataframe(spark, list_, column_names, axis="column"):
         tuple_list = (tuple(list_),)
         output_sdf = spark.createDataFrame(tuple_list, schema=column_names)
     return output_sdf
+
+
+@decorator.extension_enabler(SparkSession)
+def createDataFrame_from_dict(spark, dict_: dict) -> DataFrame:
+    """
+    Creates a Spark DataFrame from a dictionary in a pandas-like style.
+
+    Args:
+        spark: The SparkSession object.
+        dict_ (dict): The dictionary to convert, where keys are column names and values are lists of column data.
+
+    Returns:
+        DataFrame: The resulting Spark DataFrame.
+    """
+    data = list(zip(*dict_.values()))
+    label = list(dict_.keys())
+    return spark.createDataFrame(data, label)

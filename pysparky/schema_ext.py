@@ -1,6 +1,4 @@
-from typing import Any
-
-from pyspark.sql import functions as F, types as T
+from pyspark.sql import types as T
 
 from pysparky import decorator
 
