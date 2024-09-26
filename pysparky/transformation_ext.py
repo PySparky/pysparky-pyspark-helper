@@ -14,13 +14,13 @@ def apply_cols(sdf: DataFrame, col_func: Callable, cols: list[str] = None) -> Da
     Apply a function to specified columns of a Spark DataFrame.
 
     Parameters:
-    sdf (DataFrame): The input Spark DataFrame.
-    col_func (callable): The function to apply to each column.
-    cols (list[str], optional): List of column names to apply the function to.
-                                If None, applies to all columns. Defaults to None.
+        sdf (DataFrame): The input Spark DataFrame.
+        col_func (callable): The function to apply to each column.
+        cols (list[str], optional): List of column names to apply the function to.
+                                    If None, applies to all columns. Defaults to None.
 
     Returns:
-    DataFrame: A new Spark DataFrame with the function applied to the specified columns.
+        DataFrame: A new Spark DataFrame with the function applied to the specified columns.
     """
     if cols is None:
         cols = sdf.columns
@@ -35,12 +35,12 @@ def transforms(
     Apply a series of transformations to a Spark DataFrame.
 
     Parameters:
-    sdf (DataFrame): The input Spark DataFrame to be transformed.
-    transformations (list): A list of transformations, where each transformation is a tuple
-                     containing a function and a dictionary of keyword arguments to apply the function to.
+        sdf (DataFrame): The input Spark DataFrame to be transformed.
+        transformations (list): A list of transformations, where each transformation is a tuple
+                        containing a function and a dictionary of keyword arguments to apply the function to.
 
     Returns:
-    DataFrame: The transformed Spark DataFrame.
+        DataFrame: The transformed Spark DataFrame.
     """
     for transformation_funcs, kwarg in transformations:
         assert callable(transformation_funcs), "transformation_funcs must be callable"
