@@ -2,6 +2,8 @@
 
 For full documentation visit [mkdocs.org](https://www.mkdocs.org).
 
+[GitHub](https://github.com/PySparky/pysparky-pyspark-helper)
+
 ## Commands
 
 * `mkdocs new [dir-name]` - Create a new project.
