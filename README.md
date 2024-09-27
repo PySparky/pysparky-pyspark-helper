@@ -1,5 +1,5 @@
-# pyspark-helper
-python package that assist you writing pyspark
+# PySparky PySpark Helper
+Welcome to the PySparky PySpark Helper repository! This Python package is designed to assist you in writing PySpark code more efficiently and effectively.
 
 This repository is designed to replicate the structure of PySpark, making it highly accessible for users.
 
