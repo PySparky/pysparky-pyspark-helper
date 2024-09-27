@@ -83,7 +83,7 @@ def convert_dict_to_dataframe(
     Returns:
         pyspark.sql.DataFrame: A DataFrame with the dictionary keys and their corresponding exploded list values.
 
-    Example:
+    Examples:
         datadict_ = {
             "key1": 1,
             "key2": 2
