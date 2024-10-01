@@ -179,3 +179,30 @@ def distinct_value_counts_map(sdf: DataFrame, column_name: str) -> DataFrame:
             )
         )
     )
+
+
+def get_unique_values(df1: DataFrame, df2: DataFrame, column_name: str) -> DataFrame:
+    """Unions two DataFrames and returns a DataFrame with unique values.
+
+    Args:
+        df1 (DataFrame): First DataFrame.
+        df2 (DataFrame): Second DataFrame.
+        column_name (str): The column name containing the values.
+
+    Returns:
+        DataFrame: A DataFrame with unique values.
+
+    Examples:
+        # spark = SparkSession.builder.appName("UniqueValues").getOrCreate()
+        # df1 = spark.createDataFrame([(1,), (2,), (3,)], ["value"])
+        # df2 = spark.createDataFrame([(3,), (4,), (5,)], ["value"])
+        # unique_values = get_unique_values(df1, df2, "value")
+        # unique_values.show()
+    """
+    # Union the DataFrames
+    union_df = df1.select(column_name).union(df2.select(column_name))
+
+    # Perform distinct to get unique values
+    unique_values_df = union_df.distinct()
+
+    return unique_values_df
