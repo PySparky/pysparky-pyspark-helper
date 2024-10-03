@@ -60,5 +60,104 @@ def test_haversine_distance(spark):
     assert distance_km_round4 == target_value2
 
 
+def test_cumsum(spark):
+    data = [
+        (1, "A", 10),
+        (2, "A", 20),
+        (3, "B", 30),
+        (4, "B", 40),
+        (5, "A", 50),
+        (6, "B", 60),
+    ]
+    df = spark.createDataFrame(data, ["id", "category", "value"])
+
+    result_df = df.select(
+        "id",
+        "category",
+        "value",
+        F_.cumsum(F.col("value"), partitionBy=[F.col("category")]),
+    )
+
+    expected_data = [
+        (1, "A", 10, 10),
+        (2, "A", 20, 30),
+        (5, "A", 50, 80),
+        (3, "B", 30, 30),
+        (4, "B", 40, 70),
+        (6, "B", 60, 130),
+    ]
+    expected_df = spark.createDataFrame(
+        expected_data, ["id", "category", "value", "cumsum"]
+    )
+
+    assert result_df.collect() == expected_df.collect()
+
+
+def test_desc_cumsum(spark):
+    data = [
+        (1, "A", 10),
+        (2, "A", 20),
+        (3, "B", 30),
+        (4, "B", 40),
+        (5, "A", 50),
+        (6, "B", 60),
+    ]
+    df = spark.createDataFrame(data, ["id", "category", "value"])
+
+    result_df = df.select(
+        "id",
+        "category",
+        "value",
+        F_.cumsum("value", is_descending=True),
+    ).sort(F.col("id").asc())
+
+    expected_data = [
+        (1, "A", 10, 210),
+        (2, "A", 20, 200),
+        (3, "B", 30, 180),
+        (4, "B", 40, 150),
+        (5, "A", 50, 110),
+        (6, "B", 60, 60),
+    ]
+    expected_df = spark.createDataFrame(
+        expected_data, ["id", "category", "value", "cumsum"]
+    )
+
+    assert result_df.collect() == expected_df.collect()
+
+
+def test_normalized_cumsum(spark):
+    data = [
+        (1, "A", 10),
+        (2, "A", 20),
+        (3, "B", 30),
+        (4, "B", 40),
+        (5, "A", 50),
+        (6, "B", 60),
+    ]
+    df = spark.createDataFrame(data, ["id", "category", "value"])
+
+    result_df = df.select(
+        "id",
+        "category",
+        "value",
+        F_.cumsum(F.col("value"), partitionBy=[F.col("category")], is_normalized=True),
+    )
+
+    expected_data = [
+        (1, "A", 10, 10 / 80),
+        (2, "A", 20, 30 / 80),
+        (5, "A", 50, 80 / 80),
+        (3, "B", 30, 30 / 130),
+        (4, "B", 40, 70 / 130),
+        (6, "B", 60, 130 / 130),
+    ]
+    expected_df = spark.createDataFrame(
+        expected_data, ["id", "category", "value", "cumsum"]
+    )
+
+    assert result_df.collect() == expected_df.collect()
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

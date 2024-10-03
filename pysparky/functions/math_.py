@@ -1,5 +1,6 @@
 from pyspark.sql import Column
 from pyspark.sql import functions as F
+from pyspark.sql import Window
 
 from pysparky import decorator
 
@@ -52,3 +53,46 @@ def haversine_distance(
     distance = F.round(R * c, 4)
 
     return distance.alias("haversine_distance")
+
+
+@decorator.pyspark_column_or_name_enabler("columnOrName")
+def cumsum(
+    columnOrName: Column,
+    partitionBy: list[Column] = [],
+    is_normalized: bool = False,
+    is_descending: bool = False,
+    alias: str = "cumsum",
+) -> Column:
+    """
+    Calculate the cumulative sum of a column, optionally partitioned by other columns.
+
+    Args:
+        columnOrName (Column): The column for which to calculate the cumulative sum.
+        partitionBy (list[Column], optional): A list of columns to partition by. Defaults to an empty list.
+        is_normalized (bool, optional): Whether to normalize the cumulative sum. Defaults to False.
+        is_descending (bool, optional): Whether to order the cumulative sum in descending order. Defaults to False.
+        alias (str, optional): Alias for the resulting column. Defaults to "cumsum".
+
+    Returns:
+        Column: A column representing the cumulative sum.
+
+    Example:
+        >>> df = spark.createDataFrame([(1, "A", 10), (2, "A", 20), (3, "B", 30)], ["id", "category", "value"])
+        >>> result_df = df.select("id", "category", "value", cumsum(F.col("value"), partitionBy=[F.col("category")], is_descending=True))
+        >>> result_df.display()
+    """
+    if is_normalized:
+        total_sum = F.sum(columnOrName).over(Window.partitionBy(partitionBy))
+    else:
+        total_sum = F.lit(1)
+
+    if is_descending:
+        columnOrName_ordered = columnOrName.desc()
+    else:
+        columnOrName_ordered = columnOrName.asc()
+
+    cumsum = F.sum(columnOrName).over(
+        Window.partitionBy(partitionBy).orderBy(columnOrName_ordered)
+    )
+
+    return (cumsum / total_sum).alias(alias)
