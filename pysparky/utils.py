@@ -1,4 +1,5 @@
 import itertools
+from functools import reduce
 
 from pyspark.sql import Column, DataFrame
 from pyspark.sql import functions as F
@@ -24,7 +25,9 @@ def create_map_from_dict(dict_: dict[str, int]) -> Column:
     return F.create_map(list(map(F.lit, itertools.chain(*dict_.items()))))
 
 
-def join_dataframes_on_column(column_name: str, *dataframes: DataFrame) -> DataFrame:
+def join_dataframes_on_column(
+    column_name: str, *dataframes: DataFrame | list[DataFrame]
+) -> DataFrame:
     """
     Joins a list of DataFrames on a specified column using an outer join.
 
@@ -35,16 +38,25 @@ def join_dataframes_on_column(column_name: str, *dataframes: DataFrame) -> DataF
     Returns:
         DataFrame: The resulting DataFrame after performing the outer joins.
     """
+
     if not dataframes:
         raise ValueError("At least one DataFrame must be provided")
 
-    joined_df = dataframes[0].select(F.col(column_name))
-    for sdf in dataframes:
-        joined_df = joined_df.join(sdf, column_name, "outer").fillna(0)
+    if isinstance(dataframes[0], list):
+        dataframes = dataframes[0]
+
+    # Check if all DataFrames have the specified column
+    if not all(column_name in df.columns for df in dataframes):
+        raise ValueError(f"Column '{column_name}' not found in all DataFrames")
+
+    # Use reduce to perform the outer join on all DataFrames
+    joined_df = reduce(
+        lambda df1, df2: df1.join(df2, on=column_name, how="outer"), dataframes
+    )
     return joined_df
 
 
-def union_dataframes(*dataframes: DataFrame) -> DataFrame:
+def union_dataframes(*dataframes: DataFrame | list[DataFrame]) -> DataFrame:
     """
     Unions a list of DataFrames.
 
@@ -59,7 +71,12 @@ def union_dataframes(*dataframes: DataFrame) -> DataFrame:
     if not dataframes:
         raise ValueError("At least one DataFrame must be provided")
 
-    output_df = dataframes[0]
-    for sdf in dataframes[1:]:
-        output_df = output_df.union(sdf)
-    return output_df
+    # Flatten the list if the first argument is a list of DataFrames
+    if isinstance(dataframes[0], list):
+        dataframes = dataframes[0]
+
+    # Check if all DataFrames have the same schema
+    if not all(sdf.schema == dataframes[0].schema for sdf in dataframes):
+        raise ValueError("All DataFrames must have the same schema")
+
+    return reduce(DataFrame.union, dataframes)
