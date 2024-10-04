@@ -39,7 +39,7 @@ def test_join_dataframes_on_column(spark):
 
     dataframes = [df1, df2, df3]
 
-    result_df = utils.join_dataframes_on_column("id", dataframes)
+    result_df = utils.join_dataframes_on_column("id", *dataframes)
     result_data = result_df.collect()
 
     expected_data = [
@@ -58,6 +58,11 @@ def test_join_dataframes_on_column(spark):
     assert result_data == expected_result
 
 
+def test_join_dataframes_on_column_no_input():
+    with pytest.raises(ValueError, match="At least one DataFrame must be provided"):
+        utils.join_dataframes_on_column("col")
+
+
 def test_union_dataframes(spark):
     data1 = {"id": [1, 2, 3], "value": [10, 20, 30]}
     data2 = {"id": [4, 5, 6], "value": [40, 50, 60]}
@@ -69,7 +74,7 @@ def test_union_dataframes(spark):
 
     dataframes = [df1, df2, df3]
 
-    result_df = utils.union_dataframes(dataframes)
+    result_df = utils.union_dataframes(*dataframes)
     result_data = result_df.collect()
 
     expected_data = [
@@ -88,6 +93,11 @@ def test_union_dataframes(spark):
     expected_result = expected_df.collect()
 
     assert result_data == expected_result
+
+
+def test_union_dataframes_no_input():
+    with pytest.raises(ValueError, match="At least one DataFrame must be provided"):
+        utils.union_dataframes()
 
 
 if __name__ == "__main__":

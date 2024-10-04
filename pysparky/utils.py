@@ -24,36 +24,40 @@ def create_map_from_dict(dict_: dict[str, int]) -> Column:
     return F.create_map(list(map(F.lit, itertools.chain(*dict_.items()))))
 
 
-def join_dataframes_on_column(
-    column_name: str, dataframes: list[DataFrame]
-) -> DataFrame:
+def join_dataframes_on_column(column_name: str, *dataframes: DataFrame) -> DataFrame:
     """
     Joins a list of DataFrames on a specified column using an outer join.
 
     Args:
         column_name (str): The column name to join on.
-        dataframes (list): A list of DataFrames to join.
+        *dataframes (DataFrame): A list of DataFrames to join.
 
     Returns:
         DataFrame: The resulting DataFrame after performing the outer joins.
     """
+    if not dataframes:
+        raise ValueError("At least one DataFrame must be provided")
+
     joined_df = dataframes[0].select(F.col(column_name))
     for sdf in dataframes:
         joined_df = joined_df.join(sdf, column_name, "outer").fillna(0)
     return joined_df
 
 
-def union_dataframes(dataframes: list[DataFrame]) -> DataFrame:
+def union_dataframes(*dataframes: DataFrame) -> DataFrame:
     """
     Unions a list of DataFrames.
 
     Args:
-        dataframes (list): A list of DataFrames to union.
+        *dataframes (DataFrame): A list of DataFrames to union.
 
     Returns:
         DataFrame: The resulting DataFrame after performing the unions.
     """
     # TODO: Check on the schema, if not align, raise error
+
+    if not dataframes:
+        raise ValueError("At least one DataFrame must be provided")
 
     output_df = dataframes[0]
     for sdf in dataframes[1:]:
