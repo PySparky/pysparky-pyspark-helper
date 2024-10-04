@@ -119,26 +119,6 @@ def test_union_dataframes(spark):
     assert result_data == expected_result
 
 
-def test_union_different_schema(spark):
-    schema1 = T.StructType(
-        [
-            T.StructField("name", T.StringType(), True),
-            T.StructField("age", T.IntegerType(), True),
-        ]
-    )
-    schema2 = T.StructType(
-        [
-            T.StructField("name", T.StringType(), True),
-            T.StructField("salary", T.IntegerType(), True),
-        ]
-    )
-    df1 = spark.createDataFrame([("Alice", 30)], schema1)
-    df2 = spark.createDataFrame([("Bob", 50000)], schema2)
-
-    with pytest.raises(ValueError, match="All DataFrames must have the same schema"):
-        utils.union_dataframes(df1, df2)
-
-
 def test_union_list_dataframes(spark):
     data1 = {"id": [1, 2, 3], "value": [10, 20, 30]}
     data2 = {"id": [4, 5, 6], "value": [40, 50, 60]}

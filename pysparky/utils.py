@@ -75,8 +75,4 @@ def union_dataframes(*dataframes: DataFrame | list[DataFrame]) -> DataFrame:
     if isinstance(dataframes[0], list):
         dataframes = dataframes[0]
 
-    # Check if all DataFrames have the same schema
-    if not all(sdf.schema == dataframes[0].schema for sdf in dataframes):
-        raise ValueError("All DataFrames must have the same schema")
-
-    return reduce(DataFrame.union, dataframes)
+    return reduce(lambda df1, df2: df1.union(df2), dataframes)
