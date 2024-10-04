@@ -58,6 +58,7 @@ def haversine_distance(
 def cumsum(
     columnOrName: Column,
     partition_by: list[Column] = None,
+    order_by_column: Column = None,
     is_normalized: bool = False,
     is_descending: bool = False,
     alias: str = "cumsum",
@@ -68,6 +69,7 @@ def cumsum(
     Args:
         columnOrName (Column): The column for which to calculate the cumulative sum.
         partition_by (list[Column], optional): A list of columns to partition by. Defaults to an empty list.
+        order_by_column: The Column for order by, null for using the same column.
         is_normalized (bool, optional): Whether to normalize the cumulative sum. Defaults to False.
         is_descending (bool, optional): Whether to order the cumulative sum in descending order. Defaults to False.
         alias (str, optional): Alias for the resulting column. Defaults to "cumsum".
@@ -82,6 +84,8 @@ def cumsum(
     """
     if partition_by is None:
         partition_by = []
+    if order_by_column is None:
+        order_by_column = columnOrName
 
     if is_normalized:
         total_sum = F.sum(columnOrName).over(Window.partitionBy(partition_by))
@@ -89,12 +93,12 @@ def cumsum(
         total_sum = F.lit(1)
 
     if is_descending:
-        columnOrName_ordered = columnOrName.desc()
+        order_by_column_ordered = order_by_column.desc()
     else:
-        columnOrName_ordered = columnOrName.asc()
+        order_by_column_ordered = order_by_column.asc()
 
     cumsum_ = F.sum(columnOrName).over(
-        Window.partitionBy(partition_by).orderBy(columnOrName_ordered)
+        Window.partitionBy(partition_by).orderBy(order_by_column_ordered)
     )
 
     return (cumsum_ / total_sum).alias(alias)
