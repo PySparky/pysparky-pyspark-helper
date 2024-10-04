@@ -57,7 +57,7 @@ def haversine_distance(
 @decorator.pyspark_column_or_name_enabler("columnOrName")
 def cumsum(
     columnOrName: Column,
-    partitionBy: list[Column] = [],
+    partitionBy: list[Column] = list(),
     is_normalized: bool = False,
     is_descending: bool = False,
     alias: str = "cumsum",
@@ -90,8 +90,8 @@ def cumsum(
     else:
         columnOrName_ordered = columnOrName.asc()
 
-    cumsum = F.sum(columnOrName).over(
+    cumsum_ = F.sum(columnOrName).over(
         Window.partitionBy(partitionBy).orderBy(columnOrName_ordered)
     )
 
-    return (cumsum / total_sum).alias(alias)
+    return (cumsum_ / total_sum).alias(alias)
