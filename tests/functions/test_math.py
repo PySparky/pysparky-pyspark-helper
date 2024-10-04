@@ -75,7 +75,7 @@ def test_cumsum(spark):
         "id",
         "category",
         "value",
-        F_.cumsum(F.col("value"), partitionBy=[F.col("category")]),
+        F_.cumsum(F.col("value"), partition_by=[F.col("category")]),
     )
 
     expected_data = [
@@ -141,7 +141,7 @@ def test_normalized_cumsum(spark):
         "id",
         "category",
         "value",
-        F_.cumsum(F.col("value"), partitionBy=[F.col("category")], is_normalized=True),
+        F_.cumsum(F.col("value"), partition_by=[F.col("category")], is_normalized=True),
     )
 
     expected_data = [

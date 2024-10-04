@@ -57,7 +57,7 @@ def haversine_distance(
 @decorator.pyspark_column_or_name_enabler("columnOrName")
 def cumsum(
     columnOrName: Column,
-    partitionBy: list[Column] = list(),
+    partition_by: list[Column] = None,
     is_normalized: bool = False,
     is_descending: bool = False,
     alias: str = "cumsum",
@@ -67,7 +67,7 @@ def cumsum(
 
     Args:
         columnOrName (Column): The column for which to calculate the cumulative sum.
-        partitionBy (list[Column], optional): A list of columns to partition by. Defaults to an empty list.
+        partition_by (list[Column], optional): A list of columns to partition by. Defaults to an empty list.
         is_normalized (bool, optional): Whether to normalize the cumulative sum. Defaults to False.
         is_descending (bool, optional): Whether to order the cumulative sum in descending order. Defaults to False.
         alias (str, optional): Alias for the resulting column. Defaults to "cumsum".
@@ -77,11 +77,14 @@ def cumsum(
 
     Example:
         >>> df = spark.createDataFrame([(1, "A", 10), (2, "A", 20), (3, "B", 30)], ["id", "category", "value"])
-        >>> result_df = df.select("id", "category", "value", cumsum(F.col("value"), partitionBy=[F.col("category")], is_descending=True))
+        >>> result_df = df.select("id", "category", "value", cumsum(F.col("value"), partition_by=[F.col("category")], is_descending=True))
         >>> result_df.display()
     """
+    if partition_by is None:
+        partition_by = []
+
     if is_normalized:
-        total_sum = F.sum(columnOrName).over(Window.partitionBy(partitionBy))
+        total_sum = F.sum(columnOrName).over(Window.partitionBy(partition_by))
     else:
         total_sum = F.lit(1)
 
@@ -91,7 +94,7 @@ def cumsum(
         columnOrName_ordered = columnOrName.asc()
 
     cumsum_ = F.sum(columnOrName).over(
-        Window.partitionBy(partitionBy).orderBy(columnOrName_ordered)
+        Window.partitionBy(partition_by).orderBy(columnOrName_ordered)
     )
 
     return (cumsum_ / total_sum).alias(alias)
