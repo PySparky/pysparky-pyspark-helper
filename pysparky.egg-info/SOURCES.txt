@@ -5,6 +5,7 @@ pysparky/__init__.py
 pysparky/debug.py
 pysparky/decorator.py
 pysparky/quality.py
+pysparky/reader_options.py
 pysparky/schema_ext.py
 pysparky/spark_ext.py
 pysparky/transformation_ext.py

@@ -154,3 +154,22 @@ def get_value_from_map(column_or_name: str | Column, dict_: dict) -> Column:
         +----------+-----+
     """
     return utils.create_map_from_dict(dict_)[column_or_name]
+
+
+@decorator.extension_enabler(Column)
+@decorator.pyspark_column_or_name_enabler("column_or_name")
+def when_mapping(column_or_name: Column, dict_: dict) -> Column:
+    """
+    Applies a series of conditional mappings to a PySpark Column based on a dictionary of conditions and values.
+
+    Args:
+        column (Column): The PySpark Column to which the conditional mappings will be applied.
+        dict_ (Dict): A dictionary where keys are the conditions and values are the corresponding results.
+
+    Returns:
+        Column: A new PySpark Column with the conditional mappings applied.
+    """
+    result_column = F  # initiate as an functions
+    for condition, value in dict_.items():
+        result_column = result_column.when(column_or_name == condition, value)
+    return result_column
