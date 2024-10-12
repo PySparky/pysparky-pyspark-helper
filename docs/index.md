@@ -1,19 +1,29 @@
-# Welcome to MkDocs
+# PySparky - PySpark Helper
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Welcome to PySparky, a set of helper functions designed to simplify your work with PySpark. This library provides utilities to make data transformation and analysis with PySpark easier and more efficient.
 
-[GitHub](https://github.com/PySparky/pysparky-pyspark-helper)
+## Introduction
 
-## Commands
+PySparky is a collection of utility functions aimed at streamlining PySpark operations. Whether you're dealing with data transformation, cleaning, or analysis, PySparky offers helper functions that save you time and effort.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+It is designed to replicate the structure of PySpark, making it highly accessible for users.
 
-## Project layout
+- The `functions` folder contains all PySpark functions, where both the input and output are Columns.
+- The `Spark_ext`  houses functions that necessitate a Spark instance, such as creating a DataFrame.
+- The `transformation_ext`  includes functions associated with DataFrame transformations, where both the input and output are DataFrames
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+## Features
+
+- **Easy Installation**: Quickly integrate PySparky into your PySpark projects.
+- **Utility Functions**: A wide range of helper functions for common PySpark tasks.
+- **Well-Documented**: Clear and comprehensive documentation for all functions.
+
+## Installation
+
+To install PySparky, simply download the whl from the repository:
+
+```sh
+pip install pysparky-x.y.z.whl
+```
+
+## Check example for the usage

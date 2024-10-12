@@ -21,7 +21,6 @@ python -m build
 
 # TODO
 - Change pytest test case
-- Build mkdocs -> to make it standard to ingest to MkDocs
 - Build wheels for PyPi
 
 # Reference:
