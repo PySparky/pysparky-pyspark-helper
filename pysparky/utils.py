@@ -26,7 +26,7 @@ def create_map_from_dict(dict_: dict[str, int]) -> Column:
 
 
 def join_dataframes_on_column(
-    column_name: str, *dataframes: DataFrame | list[DataFrame]
+    column_name: str, *dataframes: DataFrame, how: str = "outer"
 ) -> DataFrame:
     """
     Joins a list of DataFrames on a specified column using an outer join.
@@ -34,6 +34,7 @@ def join_dataframes_on_column(
     Args:
         column_name (str): The column name to join on.
         *dataframes (DataFrame): A list of DataFrames to join.
+        how (str): The type of join to perform, passthrough to pyspark join (default is "outer").
 
     Returns:
         DataFrame: The resulting DataFrame after performing the outer joins.
@@ -42,21 +43,18 @@ def join_dataframes_on_column(
     if not dataframes:
         raise ValueError("At least one DataFrame must be provided")
 
-    if isinstance(dataframes[0], list):
-        dataframes = dataframes[0]
-
     # Check if all DataFrames have the specified column
     if not all(column_name in df.columns for df in dataframes):
         raise ValueError(f"Column '{column_name}' not found in all DataFrames")
 
     # Use reduce to perform the outer join on all DataFrames
     joined_df = reduce(
-        lambda df1, df2: df1.join(df2, on=column_name, how="outer"), dataframes
+        lambda df1, df2: df1.join(df2, on=column_name, how=how), dataframes
     )
     return joined_df
 
 
-def union_dataframes(*dataframes: DataFrame | list[DataFrame]) -> DataFrame:
+def union_dataframes(*dataframes: DataFrame) -> DataFrame:
     """
     Unions a list of DataFrames.
 
@@ -70,9 +68,5 @@ def union_dataframes(*dataframes: DataFrame | list[DataFrame]) -> DataFrame:
 
     if not dataframes:
         raise ValueError("At least one DataFrame must be provided")
-
-    # Flatten the list if the first argument is a list of DataFrames
-    if isinstance(dataframes[0], list):
-        dataframes = dataframes[0]
 
     return reduce(lambda df1, df2: df1.union(df2), dataframes)

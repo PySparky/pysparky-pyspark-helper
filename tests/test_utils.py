@@ -41,9 +41,7 @@ def test_join_dataframes_on_column(spark):
     dataframes = [df1, df2, df3]
 
     result_df = utils.join_dataframes_on_column("id", *dataframes)
-    result2_df = utils.join_dataframes_on_column("id", dataframes)
     result_data = result_df.collect()
-    result2_data = result2_df.collect()
 
     expected_data = [
         (1, 10, 100, 1000),
@@ -59,7 +57,37 @@ def test_join_dataframes_on_column(spark):
     expected_result = expected_df.collect()
 
     assert result_data == expected_result
-    assert result2_data == expected_result
+
+    result_df = utils.join_dataframes_on_column("id", *dataframes, how="inner")
+    result_data = result_df.collect()
+
+    expected_data = [
+        (1, 10, 100, 1000),
+    ]
+
+    expected_df = spark.createDataFrame(
+        expected_data, ["id", "value1", "value2", "value3"]
+    )
+    expected_result = expected_df.collect()
+
+    assert result_data == expected_result
+
+    result_df = utils.join_dataframes_on_column("id", *dataframes, how="left")
+    result_data = result_df.collect()
+
+    expected_data = [
+        (1, 10, 100, 1000),
+        (2, 20, 200, None),
+        (3, 30, None, 3000),
+    ]
+
+    expected_df = spark.createDataFrame(
+        expected_data, ["id", "value1", "value2", "value3"]
+    )
+    expected_result = expected_df.collect()
+
+    # order doesn't matter
+    assert sorted(result_data) == sorted(expected_result)
 
 
 def test_join_missing_column(spark):
@@ -99,38 +127,6 @@ def test_union_dataframes(spark):
     dataframes = [df1, df2, df3]
 
     result_df = utils.union_dataframes(*dataframes)
-    result_data = result_df.collect()
-
-    expected_data = [
-        (1, 10),
-        (2, 20),
-        (3, 30),
-        (4, 40),
-        (5, 50),
-        (6, 60),
-        (7, 70),
-        (8, 80),
-        (9, 90),
-    ]
-
-    expected_df = spark.createDataFrame(expected_data, ["id", "value"])
-    expected_result = expected_df.collect()
-
-    assert result_data == expected_result
-
-
-def test_union_list_dataframes(spark):
-    data1 = {"id": [1, 2, 3], "value": [10, 20, 30]}
-    data2 = {"id": [4, 5, 6], "value": [40, 50, 60]}
-    data3 = {"id": [7, 8, 9], "value": [70, 80, 90]}
-
-    df1 = spark.createDataFrame_from_dict(data1)
-    df2 = spark.createDataFrame_from_dict(data2)
-    df3 = spark.createDataFrame_from_dict(data3)
-
-    dataframes = [df1, df2, df3]
-
-    result_df = utils.union_dataframes(dataframes)
     result_data = result_df.collect()
 
     expected_data = [
