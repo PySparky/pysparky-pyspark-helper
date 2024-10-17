@@ -4,7 +4,7 @@ from pyspark.sql import functions as F
 
 from pysparky import functions_ext as F_
 from pysparky import spark_ext as se
-from pysparky import transformation_ext as te
+from pysparky.transformations import general as te
 
 print(pyspark.__version__)
 

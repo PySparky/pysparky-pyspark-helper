@@ -7,7 +7,7 @@ from pyspark.sql import Column
 from pyspark.sql import functions as F
 
 from pysparky import decorator, utils
-from pysparky.enabler import column_or_name_enabler
+from pysparky.enabler import ensure_column
 from pysparky.typing import ColumnOrName
 
 
@@ -80,7 +80,7 @@ def startswiths(
     Returns:
         Column: A PySpark Column expression that evaluates to True if the column starts with any string in the list, otherwise False.
     """
-    (column,) = column_or_name_enabler(column_or_name)
+    (column,) = ensure_column(column_or_name)
 
     return functools.reduce(
         operator.or_,
@@ -105,7 +105,7 @@ def replace_strings_to_none(
         Column: A Spark DataFrame column with the values replaced.
     """
 
-    (column,) = column_or_name_enabler(column_or_name)
+    (column,) = ensure_column(column_or_name)
 
     return F.when(column.isin(list_of_null_string), customize_output).otherwise(column)
 
@@ -152,7 +152,7 @@ def get_value_from_map(column_or_name: ColumnOrName, dict_: dict) -> Column:
         |         2|    b|
         +----------+-----+
     """
-    (column,) = column_or_name_enabler(column_or_name)
+    (column,) = ensure_column(column_or_name)
 
     return utils.create_map_from_dict(dict_)[column]
 
@@ -169,7 +169,7 @@ def when_mapping(column_or_name: ColumnOrName, dict_: dict) -> Column:
     Returns:
         Column: A new PySpark Column with the conditional mappings applied.
     """
-    (column,) = column_or_name_enabler(column_or_name)
+    (column,) = ensure_column(column_or_name)
 
     def reducer(result_column: Column, condition_value: tuple[Any, Any]) -> Column:
         condition, value = condition_value

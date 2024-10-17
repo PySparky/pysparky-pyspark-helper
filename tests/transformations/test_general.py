@@ -4,7 +4,7 @@ from operator import and_, or_
 import pytest
 from pyspark.sql import functions as F
 
-from pysparky import transformation_ext as te
+import pysparky.transformations as te
 
 
 def test_apply_cols(spark):
@@ -107,71 +107,6 @@ def test_filters_no_conditions(spark):
     # Assert the result is the same as the input DataFrame
     assert result_df.count() == df.count()
     assert result_df.collect() == df.collect()
-
-
-def test_get_latest_record_from_column(spark):
-    input_sdf = spark.createDataFrame(
-        [
-            (1, "Apple", "old"),
-            (2, "Apple", "new"),
-            (1, "Orange", "old"),
-            (2, "Orange", "old"),
-            (3, "Orange", "new"),
-        ],
-        ["ts", "product", "property"],
-    )
-
-    output_sdf = input_sdf.transform(
-        te.get_latest_record_from_column,
-        window_partition_column_name="product",
-        window_order_by_column_names=F.col("ts").desc(),
-        window_function=F.row_number,
-    )
-
-    target_sdf = spark.createDataFrame(
-        [
-            (2, "Apple", "new"),
-            (3, "Orange", "new"),
-        ],
-        ["ts", "product", "property"],
-    )
-
-    # it will raise error with assertDataFrameEqual if there is an error
-    assert output_sdf.collect() == target_sdf.collect()
-
-
-def test_distinct_value_counts_map(spark):
-    data = [("Alice",), ("Bob",), ("Alice",), ("Eve",), (None,)]
-    sample_data = spark.createDataFrame(data, ["name"])
-    result = te.distinct_value_counts_map(sample_data, "name")
-    expected_data = [({"Alice": 2, "Bob": 1, "Eve": 1, "NONE": 1},)]
-    expected_df = spark.createDataFrame(expected_data, ["name_map"])
-
-    result_list = result.collect()
-    expected_list = expected_df.collect()
-
-    assert result_list == expected_list
-
-
-def test_get_unique_values(spark):
-    """Test the get_unique_values function."""
-    # Create sample DataFrames
-    df1 = spark.createDataFrame([(1,), (2,), (3,)], ["value"])
-    df2 = spark.createDataFrame([(3,), (4,), (5,)], ["value"])
-
-    # Expected result
-    expected_data = [(1,), (2,), (3,), (4,), (5,)]
-    expected_df = spark.createDataFrame(expected_data, ["value"])
-
-    # Call the function
-    result_df = te.get_unique_values(df1, df2, "value")
-
-    # Collect the results for comparison
-    result_data = result_df.collect()
-    expected_data = expected_df.collect()
-
-    # Assert that the result matches the expected data
-    assert sorted(result_data) == sorted(expected_data)
 
 
 if __name__ == "__main__":

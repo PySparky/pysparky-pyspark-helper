@@ -2,7 +2,7 @@ from pyspark.sql import Column, Window
 from pyspark.sql import functions as F
 
 from pysparky import decorator
-from pysparky.enabler import column_or_name_enabler
+from pysparky.enabler import ensure_column
 from pysparky.typing import ColumnOrName
 
 
@@ -82,7 +82,7 @@ def cumsum(
         >>> result_df = df.select("id", "category", "value", cumsum(F.col("value"), partition_by=[F.col("category")], is_descending=True))
         >>> result_df.display()
     """
-    (column,) = column_or_name_enabler(column_or_name)
+    (column,) = ensure_column(column_or_name)
 
     if partition_by is None:
         partition_by = []

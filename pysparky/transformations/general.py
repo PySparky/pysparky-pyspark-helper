@@ -2,7 +2,7 @@ from functools import reduce
 from operator import and_, or_
 from typing import Callable
 
-from pyspark.sql import Column, DataFrame, Window
+from pyspark.sql import Column, DataFrame
 from pyspark.sql import functions as F
 
 from pysparky import decorator
@@ -10,7 +10,7 @@ from pysparky import decorator
 
 @decorator.extension_enabler(DataFrame)
 def apply_cols(
-    sdf: DataFrame, col_func: Callable, cols: list[str] = None, **kwargs
+    sdf: DataFrame, col_func: Callable, cols: list[str] | None = None, **kwargs
 ) -> DataFrame:
     """
     Apply a function to specified columns of a Spark DataFrame.
@@ -113,43 +113,6 @@ def filters(
 
 
 @decorator.extension_enabler(DataFrame)
-def get_latest_record_from_column(
-    sdf: DataFrame,
-    window_partition_column_name: str,
-    window_order_by_column_names: str | list,
-    window_function: Column = F.row_number,
-) -> DataFrame:
-    """
-    Fetches the most recent record from a DataFrame based on a specified column, allowing for custom sorting order.
-
-    Parameters:
-        sdf (DataFrame): The DataFrame to process.
-        window_partition_column_name (str): The column used to partition the DataFrame.
-        window_order_by_column_names (str | list): The column(s) used to sort the DataFrame.
-        window_function (Column, optional): The window function for ranking records. Defaults to F.row_number.
-
-    Returns:
-        DataFrame: A DataFrame with the most recent record for each partition.
-    """
-
-    if not isinstance(window_order_by_column_names, list):
-        window_order_by_column_names = [window_order_by_column_names]
-
-    return (
-        sdf.withColumn(
-            "temp",
-            window_function().over(
-                Window.partitionBy(window_partition_column_name).orderBy(
-                    *window_order_by_column_names
-                )
-            ),
-        )
-        .filter(F.col("temp") == 1)
-        .drop("temp")
-    )
-
-
-@decorator.extension_enabler(DataFrame)
 def distinct_value_counts_map(sdf: DataFrame, column_name: str) -> DataFrame:
     """
     Get distinct values from a DataFrame column as a map with their counts.
@@ -210,3 +173,56 @@ def get_unique_values(df1: DataFrame, df2: DataFrame, column_name: str) -> DataF
     unique_values_df = union_df.distinct()
 
     return unique_values_df
+
+
+def set_columns_to_null_based_on_condition(
+    df: DataFrame,
+    condition_column: str,
+    condition_value: str,
+    target_columns: tuple[str],
+) -> DataFrame:
+    """
+    Sets specified columns to null based on a condition in the given DataFrame.
+
+    Args:
+        df (DataFrame): The input DataFrame.
+        condition_column (str): The name of the column containing the condition value.
+        condition_value (str): The value indicating the condition to set columns to null.
+        target_columns (Tuple[str]): The tuple of columns to be set as null if the condition value is found.
+
+    Returns:
+        DataFrame: The updated DataFrame with specified columns set to null based on the condition.
+
+    Example:
+    >>> data = [
+    ...     (1, 0, 0, 0),
+    ...     (2, 0, 1, 0),
+    ...     (3, 1, 1, 1),
+    ...     (4, 1, 0, 1),
+    ...     (5, 0, 0, 0),
+    ... ]
+    >>> columns = ["ID", "Dummy1", "Dummy2", "Dummy3"]
+    >>> df = spark.createDataFrame(data, columns)
+    >>> condition_column = "Dummy1"
+    >>> condition_value = 1
+    >>> target_columns = ("Dummy2", "Dummy3")
+    >>> result_df = set_columns_to_null_based_on_condition(df, condition_column, condition_value, target_columns)
+    >>> result_df.show()
+    +---+------+-------+-------+
+    | ID|Dummy1|Dummy2 |Dummy3 |
+    +---+------+-------+-------+
+    |  1|     0|      0|      0|
+    |  2|     0|      1|      0|
+    |  3|     1|   null|   null|
+    |  4|     1|   null|   null|
+    |  5|     0|      0|      0|
+    +---+------+-------+-------+
+    """
+    return df.withColumns(
+        {
+            col: F.when(
+                F.col(condition_column) == condition_value, F.lit(None)
+            ).otherwise(F.col(col))
+            for col in target_columns
+        }
+    )

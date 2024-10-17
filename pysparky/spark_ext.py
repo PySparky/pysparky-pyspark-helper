@@ -164,7 +164,7 @@ def convert_1d_list_to_dataframe(
     |  1|  2|  3|  4|
     +---+---+---+---+
     """
-    column_names = enabler.column_name_or_column_names_enabler(column_names)
+    column_names = enabler.ensure_list(column_names)
 
     if axis not in ["column", "row"]:
         raise AttributeError(
