@@ -68,7 +68,7 @@ def test_filters(spark):
     assert (4, "d") not in result
 
     # Apply the filters function
-    result_or_df = te.filters(df, conditions, or_)
+    result_or_df = te.filters(df, conditions, "or")
 
     # Convert the result to a list for easy assertion
     result = result_or_df.collect()

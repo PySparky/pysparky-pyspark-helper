@@ -55,7 +55,7 @@ def transforms(
 
 @decorator.extension_enabler(DataFrame)
 def filters(
-    sdf: DataFrame, conditions: list[Column], operator_: Callable = and_
+    sdf: DataFrame, conditions: list[Column], operator_: str = "and"
 ) -> DataFrame:
     """
     Apply multiple filter conditions to a Spark DataFrame.
@@ -103,13 +103,18 @@ def filters(
         |  1|     a|
         +---+------+
     """
-    if operator_ not in (and_, or_):
-        raise ValueError(
-            f"Unsupported operator: {operator_}. Valid options are 'and_' and 'or_."
-        )
+    match operator_:
+        case "and":
+            operator_callable = and_
+        case "or":
+            operator_callable = or_
+        case _:
+            raise ValueError(
+                f"Unsupported operator: {operator_}. Valid options are 'and' and 'or'."
+            )
 
-    default_value = F.lit(True) if operator_ == and_ else F.lit(False)
-    return sdf.filter(reduce(operator_, conditions, default_value))
+    default_value = F.lit(True) if operator_callable == and_ else F.lit(False)
+    return sdf.filter(reduce(operator_callable, conditions, default_value))
 
 
 @decorator.extension_enabler(DataFrame)
