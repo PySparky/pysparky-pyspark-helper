@@ -23,5 +23,23 @@ def test_column_or_name_enabler_with_1(spark):
     assert isinstance(col1, Column)
 
 
+def test_column_name_or_column_names_enabler_with_string():
+    result = enabler.column_name_or_column_names_enabler("col1")
+    expected = ["col1"]
+    assert result == expected
+
+
+def test_column_name_or_column_names_enabler_with_list():
+    result = enabler.column_name_or_column_names_enabler(["col1", "col2"])
+    expected = ["col1", "col2"]
+    assert result == expected
+
+
+def test_column_name_or_column_names_enabler_with_empty_list():
+    result = enabler.column_name_or_column_names_enabler([])
+    expected = []
+    assert result == expected
+
+
 if __name__ == "__main__":
     pytest.main()

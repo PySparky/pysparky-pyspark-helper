@@ -67,7 +67,6 @@ def chain(self, func, *args, **kwargs) -> Column:
 
 
 @decorator.extension_enabler(Column)
-@decorator.pyspark_column_or_name_enabler("column_or_name")
 def startswiths(
     column_or_name: ColumnOrName, list_of_strings: list[str]
 ) -> pyspark.sql.Column:
@@ -81,10 +80,11 @@ def startswiths(
     Returns:
         Column: A PySpark Column expression that evaluates to True if the column starts with any string in the list, otherwise False.
     """
+    (column,) = column_or_name_enabler(column_or_name)
 
     return functools.reduce(
         operator.or_,
-        map(column_or_name.startswith, list_of_strings),
+        map(column.startswith, list_of_strings),
         F.lit(False),
     ).alias(f"startswiths_len{len(list_of_strings)}")
 

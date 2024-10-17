@@ -7,7 +7,6 @@ from pysparky.typing import ColumnOrName
 
 
 @decorator.extension_enabler(Column)
-@decorator.pyspark_column_or_name_enabler("lat1", "long1", "lat2", "long2")
 def haversine_distance(
     lat1: ColumnOrName,
     long1: ColumnOrName,

@@ -3,11 +3,11 @@ from typing import Any
 from pyspark.sql import Column, DataFrame, SparkSession
 from pyspark.sql import functions as F
 
-from pysparky import decorator
+from pysparky import decorator, enabler
 
 
 @decorator.extension_enabler(SparkSession)
-def column_function(spark, column_obj: Column) -> DataFrame:
+def column_function(spark: SparkSession, column_obj: Column) -> DataFrame:
     """
     Evaluates a Column expression in the context of a single-row DataFrame.
 
@@ -71,7 +71,10 @@ def column_function(spark, column_obj: Column) -> DataFrame:
 
 @decorator.extension_enabler(SparkSession)
 def convert_dict_to_dataframe(
-    spark, dict_: dict[str, Any], column_names: list[str], explode: bool = False
+    spark: SparkSession,
+    dict_: dict[str, Any],
+    column_names: list[str],
+    explode: bool = False,
 ) -> DataFrame:
     """
     Transforms a dictionary with list values into a Spark DataFrame.
@@ -111,8 +114,13 @@ def convert_dict_to_dataframe(
 
 
 @decorator.extension_enabler(SparkSession)
-@decorator.column_name_or_column_names_enabler("column_names")
-def convert_1d_list_to_dataframe(spark, list_, column_names, axis="column"):
+# @decorator.column_name_or_column_names_enabler("column_names")
+def convert_1d_list_to_dataframe(
+    spark: SparkSession,
+    list_: list[Any],
+    column_names: str | list[str],
+    axis: str = "column",
+) -> DataFrame:
     """
     Converts a 1-dimensional list into a PySpark DataFrame.
 
@@ -156,20 +164,25 @@ def convert_1d_list_to_dataframe(spark, list_, column_names, axis="column"):
     |  1|  2|  3|  4|
     +---+---+---+---+
     """
+    column_names = enabler.column_name_or_column_names_enabler(column_names)
+
     if axis not in ["column", "row"]:
-        raise AttributeError
+        raise AttributeError(
+            f"Invalid axis value: {axis}. Acceptable values are 'column' or 'row'."
+        )
 
     if axis == "column":
-        tuple_list = ((x,) for x in list_)
-        output_sdf = spark.createDataFrame(tuple_list, schema=column_names)
+        tuple_list = ((x,) for x in list_)  # type: ignore
     elif axis == "row":
-        tuple_list = (tuple(list_),)
-        output_sdf = spark.createDataFrame(tuple_list, schema=column_names)
+        tuple_list = (tuple(list_),)  # type: ignore
+
+    output_sdf = spark.createDataFrame(tuple_list, schema=column_names)
+
     return output_sdf
 
 
 @decorator.extension_enabler(SparkSession)
-def createDataFrame_from_dict(spark, dict_: dict) -> DataFrame:
+def createDataFrame_from_dict(spark: SparkSession, dict_: dict) -> DataFrame:
     """
     Creates a Spark DataFrame from a dictionary in a pandas-like style.
 

@@ -23,3 +23,27 @@ def column_or_name_enabler(*columns: ColumnOrName) -> tuple[Column, ...]:
             lambda column: F.col(column) if isinstance(column, str) else column, columns
         )
     )
+
+
+def column_name_or_column_names_enabler(
+    column_names: str | list[str],
+) -> list[str]:
+    """
+    Ensures that the input is always returned as a list of column names.
+
+    Parameters:
+    column_names (str | list[str]): A single column name (as a string) or a list of column names.
+
+    Returns:
+    list[str]: A list containing the column names.
+
+    Example:
+    >>> column_name_or_column_names_enabler("col1")
+    ['col1']
+    >>> column_name_or_column_names_enabler(["col1", "col2"])
+    ['col1', 'col2']
+    """
+
+    column_names = [column_names] if isinstance(column_names, str) else column_names
+
+    return column_names

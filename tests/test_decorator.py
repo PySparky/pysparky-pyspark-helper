@@ -3,34 +3,7 @@ from pyspark.sql import Column
 from pyspark.sql import functions as F
 
 # Now import the decorators
-from pysparky.decorator import (extension_enabler,
-                                pyspark_column_or_name_enabler)
-
-
-def test_pyspark_column_or_name_enabler(spark):
-    # It require spark session in the decorator
-    @pyspark_column_or_name_enabler("col1", "col2")
-    def test_function(col1, col2, col3):
-        return col1, col2, col3
-
-    # Test with string input
-    result = test_function("name1", "name2", "name3")
-    assert isinstance(result[0], Column)
-    assert isinstance(result[1], Column)
-    assert isinstance(result[2], str)
-
-    # Test with Column input
-    col_input = F.col("col_name")
-    result = test_function(col_input, "name2", col_input)
-    assert result[0] is col_input
-    assert isinstance(result[1], Column)
-    assert result[2] is col_input
-
-    # Test with keyword arguments
-    result = test_function(col1="name1", col2=Column("col2"), col3="name3")
-    assert isinstance(result[0], Column)
-    assert isinstance(result[1], Column)
-    assert isinstance(result[2], str)
+from pysparky.decorator import extension_enabler
 
 
 def test_extension_enabler():
