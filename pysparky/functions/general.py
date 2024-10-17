@@ -7,6 +7,8 @@ from pyspark.sql import Column
 from pyspark.sql import functions as F
 
 from pysparky import decorator, utils
+from pysparky.enabler import column_or_name_enabler
+from pysparky.typing import ColumnOrName
 
 
 @decorator.extension_enabler(Column)
@@ -67,7 +69,7 @@ def chain(self, func, *args, **kwargs) -> Column:
 @decorator.extension_enabler(Column)
 @decorator.pyspark_column_or_name_enabler("column_or_name")
 def startswiths(
-    column_or_name: str | Column, list_of_strings: list[str]
+    column_or_name: ColumnOrName, list_of_strings: list[str]
 ) -> pyspark.sql.Column:
     """
     Creates a PySpark Column expression to check if the given column starts with any string in the list.
@@ -88,9 +90,8 @@ def startswiths(
 
 
 @decorator.extension_enabler(Column)
-@decorator.pyspark_column_or_name_enabler("column_or_name")
 def replace_strings_to_none(
-    column_or_name: str | Column,
+    column_or_name: ColumnOrName,
     list_of_null_string: list[str],
     customize_output: Any = None,
 ) -> pyspark.sql.Column:
@@ -104,14 +105,13 @@ def replace_strings_to_none(
         Column: A Spark DataFrame column with the values replaced.
     """
 
-    return F.when(column_or_name.isin(list_of_null_string), customize_output).otherwise(
-        column_or_name
-    )
+    (column,) = column_or_name_enabler(column_or_name)
+
+    return F.when(column.isin(list_of_null_string), customize_output).otherwise(column)
 
 
 @decorator.extension_enabler(Column)
-@decorator.pyspark_column_or_name_enabler("column_or_name")
-def single_space_and_trim(column_or_name: str | Column) -> Column:
+def single_space_and_trim(column_or_name: ColumnOrName) -> Column:
     """
     Replaces multiple white spaces with a single space and trims the column.
 
@@ -126,8 +126,7 @@ def single_space_and_trim(column_or_name: str | Column) -> Column:
 
 
 @decorator.extension_enabler(Column)
-@decorator.pyspark_column_or_name_enabler("column_or_name")
-def get_value_from_map(column_or_name: str | Column, dict_: dict) -> Column:
+def get_value_from_map(column_or_name: ColumnOrName, dict_: dict) -> Column:
     """
     Retrieves a value from a map (dictionary) using a key derived from a specified column in a DataFrame.
 
@@ -153,12 +152,13 @@ def get_value_from_map(column_or_name: str | Column, dict_: dict) -> Column:
         |         2|    b|
         +----------+-----+
     """
-    return utils.create_map_from_dict(dict_)[column_or_name]
+    (column,) = column_or_name_enabler(column_or_name)
+
+    return utils.create_map_from_dict(dict_)[column]
 
 
 @decorator.extension_enabler(Column)
-@decorator.pyspark_column_or_name_enabler("column_or_name")
-def when_mapping(column_or_name: Column, dict_: dict) -> Column:
+def when_mapping(column_or_name: ColumnOrName, dict_: dict) -> Column:
     """
     Applies a series of conditional mappings to a PySpark Column based on a dictionary of conditions and values.
 
@@ -169,7 +169,11 @@ def when_mapping(column_or_name: Column, dict_: dict) -> Column:
     Returns:
         Column: A new PySpark Column with the conditional mappings applied.
     """
-    result_column = F  # initiate as an functions
-    for condition, value in dict_.items():
-        result_column = result_column.when(column_or_name == condition, value)
+    (column,) = column_or_name_enabler(column_or_name)
+
+    def reducer(result_column: Column, condition_value: tuple[Any, Any]) -> Column:
+        condition, value = condition_value
+        return result_column.when(column == condition, value)
+
+    result_column: Column = functools.reduce(reducer, dict_.items(), F)  # type: ignore
     return result_column

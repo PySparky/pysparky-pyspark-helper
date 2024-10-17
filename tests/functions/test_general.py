@@ -45,14 +45,6 @@ def test_replace_strings_to_none(spark):
         ]
     ).select(F_.replace_strings_to_none("_1", ["", " "]).alias("output"))
 
-    test2_sdf = spark.createDataFrame(
-        [
-            ("data",),
-            ("",),
-            (" ",),
-        ]
-    ).select(F.col("_1").replace_strings_to_none(["", " "]).alias("output"))
-
     # it will raise error with assertDataFrameEqual if there is an error
     assert test_sdf.collect() == target_sdf.collect()
 

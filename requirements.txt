@@ -2,6 +2,7 @@ pyspark
 pytest
 isort
 pyarrow
+mypy
 # build
 mkdocs-material
 mkdocstrings-python

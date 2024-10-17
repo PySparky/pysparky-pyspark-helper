@@ -2,24 +2,26 @@ from pyspark.sql import Column, Window
 from pyspark.sql import functions as F
 
 from pysparky import decorator
+from pysparky.enabler import column_or_name_enabler
+from pysparky.typing import ColumnOrName
 
 
 @decorator.extension_enabler(Column)
 @decorator.pyspark_column_or_name_enabler("lat1", "long1", "lat2", "long2")
 def haversine_distance(
-    lat1: Column,
-    long1: Column,
-    lat2: Column,
-    long2: Column,
+    lat1: ColumnOrName,
+    long1: ColumnOrName,
+    lat2: ColumnOrName,
+    long2: ColumnOrName,
 ) -> Column:
     """
     Calculates the Haversine distance between two sets of latitude and longitude coordinates.
 
     Args:
-        lat1 (Column): The column containing the latitude of the first coordinate.
-        long1 (Column): The column containing the longitude of the first coordinate.
-        lat2 (Column): The column containing the latitude of the second coordinate.
-        long2 (Column): The column containing the longitude of the second coordinate.
+        lat1 (ColumnOrName): The column containing the latitude of the first coordinate.
+        long1 (ColumnOrName): The column containing the longitude of the first coordinate.
+        lat2 (ColumnOrName): The column containing the latitude of the second coordinate.
+        long2 (ColumnOrName): The column containing the longitude of the second coordinate.
 
     Returns:
         Column: The column containing the calculated Haversine distance.
@@ -54,11 +56,10 @@ def haversine_distance(
     return distance.alias("haversine_distance")
 
 
-@decorator.pyspark_column_or_name_enabler("columnOrName")
 def cumsum(
-    columnOrName: Column,
-    partition_by: list[Column] = None,
-    order_by_column: Column = None,
+    column_or_name: ColumnOrName,
+    partition_by: list[Column] | None = None,
+    order_by_column: Column | None = None,
     is_normalized: bool = False,
     is_descending: bool = False,
     alias: str = "cumsum",
@@ -67,7 +68,7 @@ def cumsum(
     Calculate the cumulative sum of a column, optionally partitioned by other columns.
 
     Args:
-        columnOrName (Column): The column for which to calculate the cumulative sum.
+        column_or_name (Column): The column for which to calculate the cumulative sum.
         partition_by (list[Column], optional): A list of columns to partition by. Defaults to an empty list.
         order_by_column: The Column for order by, null for using the same column.
         is_normalized (bool, optional): Whether to normalize the cumulative sum. Defaults to False.
@@ -82,13 +83,15 @@ def cumsum(
         >>> result_df = df.select("id", "category", "value", cumsum(F.col("value"), partition_by=[F.col("category")], is_descending=True))
         >>> result_df.display()
     """
+    (column,) = column_or_name_enabler(column_or_name)
+
     if partition_by is None:
         partition_by = []
     if order_by_column is None:
-        order_by_column = columnOrName
+        order_by_column = column
 
     if is_normalized:
-        total_sum = F.sum(columnOrName).over(Window.partitionBy(partition_by))
+        total_sum = F.sum(column).over(Window.partitionBy(partition_by))
     else:
         total_sum = F.lit(1)
 
@@ -97,7 +100,7 @@ def cumsum(
     else:
         order_by_column_ordered = order_by_column.asc()
 
-    cumsum_ = F.sum(columnOrName).over(
+    cumsum_ = F.sum(column).over(
         Window.partitionBy(partition_by).orderBy(order_by_column_ordered)
     )
 

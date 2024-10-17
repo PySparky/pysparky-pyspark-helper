@@ -1,17 +1,18 @@
 from functools import reduce
 from operator import and_, or_
-from typing import Union
 
 from pyspark.sql import Column
 from pyspark.sql import functions as F
 
+from pysparky.typing import ColumnOrName
 
-def condition_and(*conditions: Union[Column, str]) -> Column:
+
+def condition_and(*conditions: ColumnOrName) -> Column:
     """
     Combines multiple conditions using logical AND.
 
     Args:
-        *conditions (Union[Column, str]): Multiple PySpark Column objects or SQL expression strings representing conditions.
+        *conditions (ColumnOrName): Multiple PySpark Column objects or SQL expression strings representing conditions.
 
     Returns:
         Column: A single PySpark Column object representing the combined condition.
@@ -29,12 +30,12 @@ def condition_and(*conditions: Union[Column, str]) -> Column:
     return reduce(and_, parsed_conditions, F.lit(True))
 
 
-def condition_or(*conditions: Union[Column, str]) -> Column:
+def condition_or(*conditions: ColumnOrName) -> Column:
     """
     Combines multiple conditions using logical OR.
 
     Args:
-        *conditions (Union[Column, str]): Multiple PySpark Column objects or SQL expression strings representing conditions.
+        *conditions (ColumnOrName): Multiple PySpark Column objects or SQL expression strings representing conditions.
 
     Returns:
         Column: A single PySpark Column object representing the combined condition.
