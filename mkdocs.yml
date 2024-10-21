@@ -2,6 +2,8 @@ site_name: PySparky
 site_url: https://pysparky.github.io/pysparky-pyspark-helper/
 theme:
   name: material
+  features:
+    - content.code.copy
   palette:
 
     # Palette toggle for automatic mode
@@ -26,3 +28,12 @@ theme:
 plugins:
 - search
 - mkdocstrings
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

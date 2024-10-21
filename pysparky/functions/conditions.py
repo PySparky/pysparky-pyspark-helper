@@ -79,7 +79,7 @@ def two_character_only(column_or_name: ColumnOrName) -> Column:
     Returns:
         Column: A boolean column indicating whether the input matches the pattern of exactly two alphabetic characters.
 
-    Example:
+    Examples:
         >>> df = spark.createDataFrame([("aa",), ("ZZ",), ("a1",), ("abc",)], ["value"])
         >>> df.select(two_character_only(df["value"]).alias("is_two_char")).show()
         +-----------+
@@ -104,7 +104,7 @@ def all_numbers_only(column_or_name) -> Column:
     Returns:
         Column: A column of boolean values indicating whether each entry contains only numeric characters.
 
-    Example:
+    Examples:
         >>> df = spark.createDataFrame([("123",), ("4567",), ("89a",), ("",), ("0",)], ["value"])
         >>> df.select(all_numbers(df["value"]).alias("is_all_numbers")).show()
         +-------------+
@@ -131,7 +131,7 @@ def n_numbers_only(column_or_name: ColumnOrName, n: int | str) -> Column:
     Returns:
         Column: A column of boolean values indicating whether each entry matches the regular expression.
 
-    Example:
+    Examples:
         >>> df = spark.createDataFrame([("123",), ("4567",), ("89a",), ("",), ("0",)], ["value"])
         >>> df.select(n_numbers_only(df["value"], 3).alias("is_n_numbers")).show()
         +-------------+
@@ -167,7 +167,7 @@ def printable_only(column_or_name: ColumnOrName) -> Column:
     Returns:
         Column: A column of boolean values indicating whether each entry contains only printable characters.
 
-    Example:
+    Examples:
         >>> df = spark.createDataFrame([("Hello!",), ("World",), ("123",), ("",), ("Non-printable\x01",)], ["value"])
         >>> df.select(printable_only(df["value"]).alias("is_printable")).show()
         +-------------+

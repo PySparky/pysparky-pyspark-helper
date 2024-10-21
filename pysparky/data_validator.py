@@ -20,7 +20,7 @@ class ValidationRule:
         combined_condition (Column): The combined condition of all the conditions using logical AND.
             It will generate from conditions
 
-    Example:
+    Examples:
         ValidationRule("first_name_check", F_.printable_only("first_name")),
     """
 
@@ -41,7 +41,8 @@ class DataValidator:
     Attributes:
         rules (list[ValidationRule]): A list of validation rules.
 
-    Example:
+    Examples:
+        ``` py
         ValidationRules = [
             ValidationRule("first_name_check", F_.printable_only("first_name")),
             ValidationRule("last_name_check", F_.printable_only("last_name")),
@@ -63,6 +64,7 @@ class DataValidator:
         }
 
         validator = DataValidator.from_dict(conditions)
+        ```
     """
 
     rules: list[ValidationRule]
@@ -78,7 +80,8 @@ class DataValidator:
         Returns:
             DataValidator: An instance of DataValidator.
 
-        Example:
+        Examples:
+            ``` py
             conditions = {
                 "first_name_check": F_.printable_only("first_name"),
                 "last_name_check": F_.printable_only("last_name"),
@@ -90,6 +93,8 @@ class DataValidator:
 
 
             validator = DataValidator.from_dict(conditions)
+            ```
+
         """
         rules = [ValidationRule(name, conditions) for name, conditions in data.items()]
         return cls(rules=rules)
@@ -103,8 +108,10 @@ class DataValidator:
             dict[str, Column]: A dictionary where keys are rule names
                 and values are combined conditions.
 
-        Example:
+        Examples:
+            ``` py
             sdf.withColumns(validator.query_map)
+            ```
 
         """
         return {rule.name: rule.combined_condition for rule in self.rules}
@@ -119,8 +126,11 @@ class DataValidator:
         Returns:
             DataFrame: The Spark DataFrame with the conditions applied.
 
-        Example:
+        Examples:
+            ``` py
             validator.apply_conditions(data_sdf)
+            ```
+
         """
         return sdf.withColumns(self.query_map)
 
@@ -134,8 +144,11 @@ class DataValidator:
         Returns:
             DataFrame: The Spark DataFrame with invalid rows filtered out.
 
-        Example:
+        Examples:
+            ``` py
             validator.filter_invalid(data_sdf)
+            ```
+
         """
         return filters(
             self.apply_conditions(sdf),
@@ -156,8 +169,11 @@ class DataValidator:
         Returns:
             DataFrame: The Spark DataFrame with valid rows filtered out.
 
-        Example:
+        Examples:
+            ``` py
             validator.filter_valid(data_sdf).select(data_sdf.columns).show()
+            ```
+
         """
         return filters(
             self.apply_conditions(sdf),

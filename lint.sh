@@ -8,5 +8,7 @@ echo "=== mypy ==="
 mypy .
 echo "=== pytest ==="
 pytest
-echo "=== build. ==="
+echo "=== build ==="
 python -m build
+echo "=== mkdocs ==="
+mkdocs serve -w docs

@@ -77,7 +77,7 @@ def cumsum(
     Returns:
         Column: A column representing the cumulative sum.
 
-    Example:
+    Examples:
         >>> df = spark.createDataFrame([(1, "A", 10), (2, "A", 20), (3, "B", 30)], ["id", "category", "value"])
         >>> result_df = df.select("id", "category", "value", cumsum(F.col("value"), partition_by=[F.col("category")], is_descending=True))
         >>> result_df.display()

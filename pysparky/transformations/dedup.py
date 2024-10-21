@@ -56,7 +56,8 @@ def quarantine_duplicate_record(
         tuple[DataFrame, DataFrame]: A tuple containing two DataFrames. The first DataFrame
         contains unique records, and the second DataFrame contains duplicate records.
 
-    Example:
+    Examples:
+        ``` python
         >>> data = [(1, "A"), (2, "B"), (3, "C"), (1, "A"), (4, "D"), (2, "B")]
         >>> sdf = spark.createDataFrame(data, ["id", "value"])
         >>> unique_records, duplicate_records = quarantine_duplicate_record(sdf, "id")
@@ -76,6 +77,7 @@ def quarantine_duplicate_record(
         |  2|    B|
         |  2|    B|
         +---+-----+
+        ```
     """
     window_spec = Window.partitionBy(column_name)
     with_count_sdf = sdf.withColumn("count", F.count(column_name).over(window_spec))
@@ -97,7 +99,8 @@ def get_only_duplicate_record(sdf: DataFrame, column_name: str) -> DataFrame:
     Returns:
         DataFrame: A DataFrame containing only the duplicate records.
 
-    Example:
+    Examples:
+        ``` py
         >>> data = [(1, "A"), (2, "B"), (3, "C"), (1, "A"), (4, "D"), (2, "B")]
         >>> sdf = spark.createDataFrame(data, ["id", "value"])
         >>> duplicate_records = get_only_duplicate_record(sdf, "id")
@@ -110,6 +113,7 @@ def get_only_duplicate_record(sdf: DataFrame, column_name: str) -> DataFrame:
         |  2|    B|
         |  2|    B|
         +---+-----+
+        ```
     """
     _, duplicate_records_sdf = quarantine_duplicate_record(sdf, column_name)
     return duplicate_records_sdf
@@ -127,7 +131,8 @@ def get_only_unique_record(sdf: DataFrame, column_name: str) -> DataFrame:
     Returns:
         DataFrame: A DataFrame containing only the unique records.
 
-    Example:
+    Examples:
+        ``` py
         >>> data = [(1, "A"), (2, "B"), (3, "C"), (1, "A"), (4, "D"), (2, "B")]
         >>> sdf = spark.createDataFrame(data, ["id", "value"])
         >>> unique_records = get_only_unique_record(sdf, "id")
@@ -138,6 +143,7 @@ def get_only_unique_record(sdf: DataFrame, column_name: str) -> DataFrame:
         |  3|    C|
         |  4|    D|
         +---+-----+
+        ```
     """
     unique_records_sdf, _ = quarantine_duplicate_record(sdf, column_name)
     return unique_records_sdf

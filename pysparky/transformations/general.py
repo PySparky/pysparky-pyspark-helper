@@ -165,11 +165,13 @@ def get_unique_values(df1: DataFrame, df2: DataFrame, column_name: str) -> DataF
         DataFrame: A DataFrame with unique values.
 
     Examples:
-        # spark = SparkSession.builder.appName("UniqueValues").getOrCreate()
-        # df1 = spark.createDataFrame([(1,), (2,), (3,)], ["value"])
-        # df2 = spark.createDataFrame([(3,), (4,), (5,)], ["value"])
-        # unique_values = get_unique_values(df1, df2, "value")
-        # unique_values.show()
+        ``` py
+        spark = SparkSession.builder.appName("UniqueValues").getOrCreate()
+        df1 = spark.createDataFrame([(1,), (2,), (3,)], ["value"])
+        df2 = spark.createDataFrame([(3,), (4,), (5,)], ["value"])
+        unique_values = get_unique_values(df1, df2, "value")
+        unique_values.show()
+        ```
     """
     # Union the DataFrames
     union_df = df1.select(column_name).union(df2.select(column_name))
@@ -198,30 +200,32 @@ def set_columns_to_null_based_on_condition(
     Returns:
         DataFrame: The updated DataFrame with specified columns set to null based on the condition.
 
-    Example:
-    >>> data = [
-    ...     (1, 0, 0, 0),
-    ...     (2, 0, 1, 0),
-    ...     (3, 1, 1, 1),
-    ...     (4, 1, 0, 1),
-    ...     (5, 0, 0, 0),
-    ... ]
-    >>> columns = ["ID", "Dummy1", "Dummy2", "Dummy3"]
-    >>> df = spark.createDataFrame(data, columns)
-    >>> condition_column = "Dummy1"
-    >>> condition_value = 1
-    >>> target_columns = ("Dummy2", "Dummy3")
-    >>> result_df = set_columns_to_null_based_on_condition(df, condition_column, condition_value, target_columns)
-    >>> result_df.show()
-    +---+------+-------+-------+
-    | ID|Dummy1|Dummy2 |Dummy3 |
-    +---+------+-------+-------+
-    |  1|     0|      0|      0|
-    |  2|     0|      1|      0|
-    |  3|     1|   null|   null|
-    |  4|     1|   null|   null|
-    |  5|     0|      0|      0|
-    +---+------+-------+-------+
+    Examples:
+        ``` py
+        >>> data = [
+        ...     (1, 0, 0, 0),
+        ...     (2, 0, 1, 0),
+        ...     (3, 1, 1, 1),
+        ...     (4, 1, 0, 1),
+        ...     (5, 0, 0, 0),
+        ... ]
+        >>> columns = ["ID", "Dummy1", "Dummy2", "Dummy3"]
+        >>> df = spark.createDataFrame(data, columns)
+        >>> condition_column = "Dummy1"
+        >>> condition_value = 1
+        >>> target_columns = ("Dummy2", "Dummy3")
+        >>> result_df = set_columns_to_null_based_on_condition(df, condition_column, condition_value, target_columns)
+        >>> result_df.show()
+        +---+------+-------+-------+
+        | ID|Dummy1|Dummy2 |Dummy3 |
+        +---+------+-------+-------+
+        |  1|     0|      0|      0|
+        |  2|     0|      1|      0|
+        |  3|     1|   null|   null|
+        |  4|     1|   null|   null|
+        |  5|     0|      0|      0|
+        +---+------+-------+-------+
+        ```
     """
     return df.withColumns(
         {
