@@ -2,11 +2,11 @@ LICENSE
 README.md
 pyproject.toml
 pysparky/__init__.py
+pysparky/data_validator.py
 pysparky/debug.py
 pysparky/decorator.py
 pysparky/enabler.py
 pysparky/quality.py
-pysparky/reader_options.py
 pysparky/schema_ext.py
 pysparky/spark_ext.py
 pysparky/typing.py
@@ -23,6 +23,7 @@ pysparky/functions/math_.py
 pysparky/transformations/__init__.py
 pysparky/transformations/dedup.py
 pysparky/transformations/general.py
+tests/test_data_validator.py
 tests/test_debug.py
 tests/test_decorator.py
 tests/test_enabler.py
