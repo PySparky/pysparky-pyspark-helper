@@ -25,6 +25,11 @@ To install PySparky, simply download the whl from the repository:
 
 ```sh
 pip install pysparky-x.y.z.whl
+# or
+pip install git+https://github.com/PySparky/pysparky-pyspark-helper.git
+
+# remove
+pip uninstall pysparky
 ```
 
 ## Check example for the usage
