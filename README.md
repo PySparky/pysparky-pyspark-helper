@@ -19,6 +19,12 @@ pytest
 python -m build
 ```
 
+# Installation
+```
+pip install git+https://github.com/PySparky/pysparky-pyspark-helper.git
+pip uninstall pysparky
+```
+
 # TODO
 - Change pytest test case
 - Build wheels for PyPi
