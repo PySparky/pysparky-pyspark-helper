@@ -1,5 +1,9 @@
 from pyspark.sql import Column
+from pyspark.sql import functions as F
+
+from pysparky.enabler import ensure_column
 from pysparky.typing import ColumnOrName
+
 
 def cast_string_to_boolean(column_or_name: ColumnOrName) -> Column:
     """
