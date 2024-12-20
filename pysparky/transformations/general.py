@@ -235,3 +235,34 @@ def set_columns_to_null_based_on_condition(
             for col in target_columns
         }
     )
+
+
+def execute_transformation_blueprint(
+    sdf: DataFrame, blueprint: dict[str, Column]
+) -> DataFrame:
+    """
+    Executes a transformation blueprint on a Spark DataFrame.
+
+    The transformation blueprint is a dictionary where keys are column names
+    and values are the corresponding transformations to apply. The function
+    applies each transformation in the order specified by the blueprint and
+    returns the resulting DataFrame with the transformed columns.
+
+    A transformation_blueprint is a dictionary that the
+    key: new column name
+    value: Column function
+
+    Args:
+        sdf (DataFrame): The input DataFrame to be transformed.
+        blueprint (Dict[str, Column]): A dictionary of column names as keys and
+            transformation functions as values.
+
+    Returns:
+        DataFrame: The resulting DataFrame with the transformed columns.
+    """
+    return sdf.select(
+        [
+            column_processing.alias(new_column_name)
+            for new_column_name, column_processing in blueprint.items()
+        ]
+    )

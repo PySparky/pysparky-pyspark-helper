@@ -1,8 +1,8 @@
 import functools
-from operator import and_, or_
 
 import pytest
 from pyspark.sql import functions as F
+from pyspark.sql import types as T
 
 import pysparky.transformations as te
 
@@ -107,6 +107,39 @@ def test_filters_no_conditions(spark):
     # Assert the result is the same as the input DataFrame
     assert result_df.count() == df.count()
     assert result_df.collect() == df.collect()
+
+
+def test_execute_transformation_blueprint(spark):
+    data = [("Alice", "Engineering"), ("Bob", "HR"), ("Charlie", "Finance")]
+    schema = T.StructType(
+        [
+            T.StructField("name", T.StringType(), True),
+            T.StructField("department", T.StringType(), True),
+        ]
+    )
+
+    df = spark.createDataFrame(data, schema=schema)
+
+    blueprint = {
+        "name_upper": F.upper("name"),
+        "department_lower": F.lower("department"),
+    }
+
+    result_df = te.execute_transformation_blueprint(df, blueprint)
+
+    expected_data = [("ALICE", "engineering"), ("BOB", "hr"), ("CHARLIE", "finance")]
+    expected_schema = T.StructType(
+        [
+            T.StructField("name_upper", T.StringType(), True),
+            T.StructField("department_lower", T.StringType(), True),
+        ]
+    )
+    expected_df = spark.createDataFrame(expected_data, schema=expected_schema)
+
+    result = result_df.collect()
+    expected = expected_df.collect()
+
+    assert result == expected
 
 
 if __name__ == "__main__":
