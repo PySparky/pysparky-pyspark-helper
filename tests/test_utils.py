@@ -34,9 +34,9 @@ def test_join_dataframes_on_column(spark):
     data2 = {"id": [1, 2, 4], "value2": [100, 200, 400]}
     data3 = {"id": [1, 3, 5], "value3": [1000, 3000, 5000]}
 
-    df1 = spark.createDataFrame_from_dict(data1)
-    df2 = spark.createDataFrame_from_dict(data2)
-    df3 = spark.createDataFrame_from_dict(data3)
+    df1 = createDataFrame_from_dict(spark, data1)
+    df2 = createDataFrame_from_dict(spark, data2)
+    df3 = createDataFrame_from_dict(spark, data3)
 
     dataframes = [df1, df2, df3]
 
@@ -150,6 +150,42 @@ def test_union_dataframes(spark):
 def test_union_dataframes_no_input():
     with pytest.raises(ValueError, match="At least one DataFrame must be provided"):
         utils.union_dataframes()
+
+
+def test_split_dataframe_by_column_valid(spark):
+    data = [
+        {"id": 1, "category": "A"},
+        {"id": 2, "category": "B"},
+        {"id": 3, "category": "A"},
+        {"id": 4, "category": "C"},
+    ]
+    schema = T.StructType(
+        [
+            T.StructField("id", T.IntegerType(), True),
+            T.StructField("category", T.StringType(), True),
+        ]
+    )
+    sample_dataframe = spark.createDataFrame(data, schema)
+
+    results = utils.split_dataframe_by_column(sample_dataframe, "category")
+
+    # Verify the result is a dictionary
+    assert isinstance(results, dict), "Result should be a dictionary"
+
+    # Verify the keys match the distinct values
+    expected_keys = {"A", "B", "C"}
+    assert (
+        set(results.keys()) == expected_keys
+    ), "Keys should match distinct column values"
+
+    # Verify the DataFrames have the correct rows
+    assert results["A"].count() == 2, "Category A should have 2 rows"
+    assert results["B"].count() == 1, "Category B should have 1 row"
+    assert results["C"].count() == 1, "Category C should have 1 row"
+
+    # Check row content
+    rows_a = [row["id"] for row in results["A"].collect()]
+    assert rows_a == [1, 3], "Category A rows should match expected IDs"
 
 
 if __name__ == "__main__":

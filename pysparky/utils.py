@@ -70,3 +70,29 @@ def union_dataframes(*dataframes: DataFrame) -> DataFrame:
         raise ValueError("At least one DataFrame must be provided")
 
     return reduce(lambda df1, df2: df1.union(df2), dataframes)
+
+
+def split_dataframe_by_column(
+    sdf: DataFrame, split_column: str
+) -> dict[str, DataFrame]:
+    """
+    Splits a DataFrame into multiple DataFrames based on distinct values in a specified column.
+
+    Parameters:
+        sdf (DataFrame): The input Spark DataFrame.
+        column_name (str): The column name to split the DataFrame by.
+
+    Returns:
+        dict[str, DataFrame]: A dictionary where keys are distinct column values and values are DataFrames.
+    """
+    # Get distinct values from the specified column
+    unique_values = [
+        row[split_column] for row in sdf.select(split_column).distinct().collect()
+    ]
+
+    # Create a dictionary to hold the filtered DataFrames
+    filtered_dfs = {
+        value: sdf.filter(F.col(split_column) == value) for value in unique_values
+    }
+
+    return filtered_dfs
