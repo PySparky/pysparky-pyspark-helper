@@ -259,6 +259,9 @@ def execute_transformation_blueprint(
 
     Returns:
         DataFrame: The resulting DataFrame with the transformed columns.
+
+    Example:
+        sdf.transform(execute_transformation_blueprint, processing_blueprint).show()
     """
     return sdf.select(
         [
