@@ -1,3 +1,5 @@
+# from functools import reduce
+
 from pyspark.sql import Column
 from pyspark.sql import functions as F
 
@@ -33,3 +35,33 @@ def cast_string_to_boolean(column_or_name: ColumnOrName) -> Column:
         .when(column.isin(true_string), True)
         .otherwise(None)
     )
+
+
+# def to_timestamps(column: Column, formats: list[str]) -> Column:
+#     """
+#     Converts a column with date/time strings into a timestamp column by trying multiple formats.
+
+#     This function iterates over a list of date/time formats and attempts to parse the input column
+#     using each format. The first format that successfully parses the value is used. If no format succeeds,
+#     the result for that row is `NULL`.
+
+#     Parameters:
+#     ----------
+#     column : Column
+#         The input Spark column containing date/time strings to be converted to timestamp format.
+
+#     formats : list[str]
+#         A list of date/time format strings to try. Formats should follow the pattern
+#         conventions of `java.text.SimpleDateFormat`, such as "yyyy-MM-dd", "MM/dd/yyyy", etc.
+
+#     Returns:
+#     -------
+#     Column
+#         A Spark Column of type timestamp. If none of the formats match for a row, the value will be `NULL`.
+#     """
+#     def reducer(acc, format):
+#         return acc.when(
+#             F.to_timestamp(column, format).isNotNull(), F.to_timestamp(column, format)
+#         )
+
+#     return reduce(reducer, formats, F)
