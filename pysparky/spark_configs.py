@@ -7,7 +7,6 @@ iceberg_spark_config = {
     "spark.sql.catalog.local.warehouse":"./warehouse",
     "spark.sql.catalog.local.type":"hadoop",
 }
-}
 
 aws_athena_spark_config = {
     "fs.s3a.aws.credentials.provider": "com.amazonaws.auth.EnvironmentVariableCredentialsProvider",
