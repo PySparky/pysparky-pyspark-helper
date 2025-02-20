@@ -55,7 +55,7 @@ def haversine_distance(
     return distance.alias("haversine_distance")
 
 
-def cumsum(
+def cumsum(  # pylint: disable=too-many-positional-arguments
     column_or_name: ColumnOrName,
     partition_by: list[Column] | None = None,
     order_by_column: Column | None = None,

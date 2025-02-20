@@ -154,7 +154,9 @@ class DataValidator:
         return filters(
             self.apply_conditions(sdf),
             [
-                (F.col(column_name) == False)  # noqa: E712
+                (
+                    F.col(column_name) == False  # noqa: E712
+                )  # pylint: disable=singleton-comparison
                 for column_name in self.query_map.keys()
             ],
             operator_="or",
@@ -179,7 +181,9 @@ class DataValidator:
         return filters(
             self.apply_conditions(sdf),
             [
-                (F.col(column_name) == True)  # noqa: E712
+                (
+                    F.col(column_name) == True  # noqa: E712
+                )  # noqa: E712 # pylint: disable=singleton-comparison
                 for column_name in self.query_map.keys()
             ],
             operator_="and",
