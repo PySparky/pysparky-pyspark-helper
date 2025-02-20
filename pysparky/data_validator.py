@@ -103,6 +103,7 @@ class DataValidator:
     def query_map(self) -> dict[str, Column]:
         """
         Gets a dictionary mapping rule names to their combined conditions.
+        The key is the column name and the value is the Column Object.
 
         Returns:
             dict[str, Column]: A dictionary where keys are rule names
@@ -153,7 +154,7 @@ class DataValidator:
         return filters(
             self.apply_conditions(sdf),
             [
-                (F.col(column_name) == False)  # pylint: disable=singleton-comparison
+                (F.col(column_name) == False)  # noqa: E712
                 for column_name in self.query_map.keys()
             ],
             operator_="or",
@@ -178,7 +179,7 @@ class DataValidator:
         return filters(
             self.apply_conditions(sdf),
             [
-                (F.col(column_name) == True)  # pylint: disable=singleton-comparison
+                (F.col(column_name) == True)  # noqa: E712
                 for column_name in self.query_map.keys()
             ],
             operator_="and",
