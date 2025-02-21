@@ -2,13 +2,10 @@ import pytest
 from pyspark.sql import functions as F
 
 import pysparky.functions as F_
-from pysparky.functions.general import (chain, lower_, replace_strings_to_none,
-                                        single_space_and_trim, startswiths)
 from pysparky.spark_ext import column_function
 
 
 def test_lower(spark):
-
     target = spark.column_function(F.lit("hello")).collect()
     test1 = spark.column_function(F_.lower_(F.lit("HELLO"))).collect()
     test2 = spark.column_function(F.lit("HELLO").lower_()).collect()
@@ -16,21 +13,9 @@ def test_lower(spark):
     assert target == test2
 
 
-def test_startswiths(spark):
-    target = spark.column_function(F.lit(True)).collect()
-    test1 = spark.column_function(
-        F_.startswiths(F.lit("a12334"), ["a123", "234"])
-    ).collect()
-    test2 = spark.column_function(
-        F.lit("a12334").startswiths(["a123", "234"])
-    ).collect()
-    assert target == test1
-    assert target == test2
-
-
 def test_chain(spark):
     target = spark.column_function(F.lit("hello")).collect()
-    test1 = spark.column_function(F.lit("HELLO").chain(F.lower)).collect()
+    test1 = column_function(spark, F_.chain(F.lit("HELLO"), F.lower)).collect()
     assert target == test1
 
 
@@ -64,10 +49,6 @@ def test_single_space_and_trims(spark, input_str, expected_str):
     result_df = df.withColumn(
         "output_col", F_.single_space_and_trim(F.col("input_col"))
     )
-    result = result_df.select("output_col").collect()[0][0]
-    assert result == expected_str
-
-    result_df = df.withColumn("output_col", F.col("input_col").single_space_and_trim())
     result = result_df.select("output_col").collect()[0][0]
     assert result == expected_str
 

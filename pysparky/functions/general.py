@@ -1,5 +1,4 @@
 import functools
-import operator
 from typing import Any
 
 import pyspark
@@ -64,29 +63,6 @@ def chain(self, func, *args, **kwargs) -> Column:
         followed by any additional arguments specified in the `chain` call.
     """
     return func(self, *args, **kwargs)
-
-
-@decorator.extension_enabler(Column)
-def startswiths(
-    column_or_name: ColumnOrName, list_of_strings: list[str]
-) -> pyspark.sql.Column:
-    """
-    Creates a PySpark Column expression to check if the given column starts with any string in the list.
-
-    Args:
-        column_or_name (ColumnOrName): The column to check.
-        list_of_strings (List[str]): A list of strings to check if the column starts with.
-
-    Returns:
-        Column: A PySpark Column expression that evaluates to True if the column starts with any string in the list, otherwise False.
-    """
-    (column,) = ensure_column(column_or_name)
-
-    return functools.reduce(
-        operator.or_,
-        map(column.startswith, list_of_strings),
-        F.lit(False),
-    ).alias(f"startswiths_len{len(list_of_strings)}")
 
 
 @decorator.extension_enabler(Column)

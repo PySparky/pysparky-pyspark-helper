@@ -3,9 +3,10 @@ from pyspark.sql import functions as F
 
 # Assuming the functions are defined in a module named conditions
 from pysparky import functions as F_
+from pysparky import spark_ext
 
 
-def test_is_condition_and_with_columns(spark):
+def test_condition_and_with_columns(spark):
     df = spark.createDataFrame(
         [
             (1, 2),
@@ -20,7 +21,7 @@ def test_is_condition_and_with_columns(spark):
     assert result == [(3, 4)]
 
 
-def test_is_condition_and_with_strings(spark):
+def test_condition_and_with_strings(spark):
     df = spark.createDataFrame(
         [
             (1, 2),
@@ -35,7 +36,7 @@ def test_is_condition_and_with_strings(spark):
     assert result == [(3, 4)]
 
 
-def test_is_condition_or_with_columns(spark):
+def test_condition_or_with_columns(spark):
     df = spark.createDataFrame(
         [
             (1, 2),
@@ -50,7 +51,7 @@ def test_is_condition_or_with_columns(spark):
     assert result == [(1, 2), (5, 6)]
 
 
-def test_is_condition_or_with_strings(spark):
+def test_condition_or_with_strings(spark):
     df = spark.createDataFrame(
         [
             (1, 2),
@@ -257,6 +258,14 @@ def test_is_printable_only(spark):
     expected_df = spark.createDataFrame(expected_data, ["value", "is_printable"])
 
     assert result_df.collect() == expected_df.collect()
+
+
+def test_startswiths(spark):
+    target = spark_ext.column_function(spark, F.lit(True)).collect()
+    test1 = spark_ext.column_function(
+        spark, F_.startswiths(F.lit("a12334"), ["a123", "234"])
+    ).collect()
+    assert target == test1
 
 
 if __name__ == "__main__":

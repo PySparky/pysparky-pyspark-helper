@@ -1,9 +1,12 @@
 from functools import reduce
 from operator import and_, or_
 
+import pyspark
 from pyspark.sql import Column
 from pyspark.sql import functions as F
 
+from pysparky import decorator
+from pysparky.enabler import ensure_column
 from pysparky.typing import ColumnOrName
 
 
@@ -183,3 +186,26 @@ def is_printable_only(column_or_name: ColumnOrName) -> Column:
     # Regular expression for printable ASCII characters (0x20 to 0x7E)
     regexp = r"^[\x20-\x7E]+$"
     return F.regexp_like(column_or_name, F.lit(regexp))
+
+
+@decorator.extension_enabler(Column)
+def startswiths(
+    column_or_name: ColumnOrName, list_of_strings: list[str]
+) -> pyspark.sql.Column:
+    """
+    Creates a PySpark Column expression to check if the given column starts with any string in the list.
+
+    Args:
+        column_or_name (ColumnOrName): The column to check.
+        list_of_strings (List[str]): A list of strings to check if the column starts with.
+
+    Returns:
+        Column: A PySpark Column expression that evaluates to True if the column starts with any string in the list, otherwise False.
+    """
+    (column,) = ensure_column(column_or_name)
+
+    return reduce(
+        or_,
+        map(column.startswith, list_of_strings),
+        F.lit(False),
+    ).alias(f"startswiths_len{len(list_of_strings)}")
