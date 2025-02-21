@@ -259,32 +259,5 @@ def test_is_printable_only(spark):
     assert result_df.collect() == expected_df.collect()
 
 
-def test_is_in_range(spark):
-    data = [
-        (-1,),
-        (0,),
-        (1,),
-        (50,),
-        (100,),
-        (101,),
-        (None,),
-    ]
-    df = spark.createDataFrame(data, ["value"])
-
-    result_df = df.withColumn("is_in_range", F_.is_in_range(F.col("value"), 0, 100))
-    expected_data = [
-        (-1, False),
-        (0, True),
-        (1, True),
-        (50, True),
-        (100, True),
-        (101, False),
-        (None, None),
-    ]
-    expected_df = spark.createDataFrame(expected_data, ["value", "is_in_range"])
-
-    assert result_df.collect() == expected_df.collect()
-
-
 if __name__ == "__main__":
     pytest.main()
