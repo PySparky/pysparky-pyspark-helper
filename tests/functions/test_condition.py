@@ -5,7 +5,7 @@ from pyspark.sql import functions as F
 from pysparky import functions as F_
 
 
-def test_condition_and_with_columns(spark):
+def test_is_condition_and_with_columns(spark):
     df = spark.createDataFrame(
         [
             (1, 2),
@@ -20,7 +20,7 @@ def test_condition_and_with_columns(spark):
     assert result == [(3, 4)]
 
 
-def test_condition_and_with_strings(spark):
+def test_is_condition_and_with_strings(spark):
     df = spark.createDataFrame(
         [
             (1, 2),
@@ -35,7 +35,7 @@ def test_condition_and_with_strings(spark):
     assert result == [(3, 4)]
 
 
-def test_condition_or_with_columns(spark):
+def test_is_condition_or_with_columns(spark):
     df = spark.createDataFrame(
         [
             (1, 2),
@@ -50,7 +50,7 @@ def test_condition_or_with_columns(spark):
     assert result == [(1, 2), (5, 6)]
 
 
-def test_condition_or_with_strings(spark):
+def test_is_condition_or_with_strings(spark):
     df = spark.createDataFrame(
         [
             (1, 2),
@@ -65,7 +65,7 @@ def test_condition_or_with_strings(spark):
     assert result == [(1, 2), (5, 6)]
 
 
-def test_n_character_only(spark):
+def test_is_n_character_only(spark):
     data = [("abc",), ("abcd",), ("ab",), ("a1",), ("",), ("abcde",)]
     df = spark.createDataFrame(data, ["value"])
 
@@ -100,7 +100,7 @@ def test_n_character_only(spark):
     assert result_df.collect() == expected_df.collect()
 
 
-def test_two_character_only(spark):
+def test_is_two_character_only(spark):
     data = [
         ("aa", True),
         ("ZZ", True),
@@ -119,7 +119,7 @@ def test_two_character_only(spark):
     assert df.collect() == result_df.collect()
 
 
-def test_all_numbers_string(spark):
+def test_is_all_numbers_string(spark):
     data = [("123",), ("4567",), ("89a",), ("",), ("0",), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
@@ -137,7 +137,7 @@ def test_all_numbers_string(spark):
     assert result_df.collect() == expected_df.collect()
 
 
-def test_all_numbers_integer(spark):
+def test_is_all_numbers_integer(spark):
     data = [(123,), (4567,), (890,), (0,), (1234567890,), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
@@ -155,7 +155,7 @@ def test_all_numbers_integer(spark):
     assert result_df.collect() == expected_df.collect()
 
 
-def test_all_numbers_float(spark):
+def test_is_all_numbers_float(spark):
     data = [(123.45,), (6789.01,), (234.56,), (0.0,), (123456.789,), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
@@ -173,7 +173,7 @@ def test_all_numbers_float(spark):
     assert result_df.collect() == expected_df.collect()
 
 
-def test_n_numbers_string(spark):
+def test_is_n_numbers_string(spark):
     data = [("12",), ("4567",), ("89a",), ("00",), ("0",), ("",), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
@@ -194,7 +194,7 @@ def test_n_numbers_string(spark):
     assert result_df.collect() == expected_df.collect()
 
 
-def test_n_numbers_integer(spark):
+def test_is_n_numbers_integer(spark):
     data = [(12,), (4567,), (89,), (00,), (0,), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
@@ -214,7 +214,7 @@ def test_n_numbers_integer(spark):
     assert result_df.collect() == expected_df.collect()
 
 
-def test_n_numbers_float(spark):
+def test_is_n_numbers_float(spark):
     data = [(12.2,), (4567.1,), (89.0,), (00.0,), (0.0,), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
@@ -234,7 +234,7 @@ def test_n_numbers_float(spark):
     assert result_df.collect() == expected_df.collect()
 
 
-def test_printable_only(spark):
+def test_is_printable_only(spark):
     data = [
         ("Hello!",),
         ("World",),
@@ -255,6 +255,33 @@ def test_printable_only(spark):
         ("Printable~", True),
     ]
     expected_df = spark.createDataFrame(expected_data, ["value", "is_printable"])
+
+    assert result_df.collect() == expected_df.collect()
+
+
+def test_is_in_range(spark):
+    data = [
+        (-1,),
+        (0,),
+        (1,),
+        (50,),
+        (100,),
+        (101,),
+        (None,),
+    ]
+    df = spark.createDataFrame(data, ["value"])
+
+    result_df = df.withColumn("is_in_range", F_.is_in_range(F.col("value"), 0, 100))
+    expected_data = [
+        (-1, False),
+        (0, True),
+        (1, True),
+        (50, True),
+        (100, True),
+        (101, False),
+        (None, None),
+    ]
+    expected_df = spark.createDataFrame(expected_data, ["value", "is_in_range"])
 
     assert result_df.collect() == expected_df.collect()
 

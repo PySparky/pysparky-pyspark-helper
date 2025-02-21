@@ -4,6 +4,7 @@ from operator import and_, or_
 from pyspark.sql import Column
 from pyspark.sql import functions as F
 
+from pysparky.enabler import ensure_column
 from pysparky.typing import ColumnOrName
 
 
@@ -183,3 +184,36 @@ def is_printable_only(column_or_name: ColumnOrName) -> Column:
     # Regular expression for printable ASCII characters (0x20 to 0x7E)
     regexp = r"^[\x20-\x7E]+$"
     return F.regexp_like(column_or_name, F.lit(regexp))
+
+
+def is_in_range(column_or_name: ColumnOrName, lower: int, upper: int) -> Column:
+    """
+    Check if the given column or string contains only numeric characters.
+
+    Args:
+        column_or_name (ColumnOrName): The column or string to be checked.
+        lower (int): The lower bound of the range.
+        upper (int): The upper bound of the range.
+
+    Returns:
+        Column: A column of boolean values indicating whether each entry contains only numeric characters.
+
+    Examples:
+        >>> df = spark.createDataFrame([(-1,),(0,), (50,), (100,), (120,)], ["value"])
+        >>> df.select(is_in_range(df["value"], 0, 100).alias("is_in_range")).show()
+        +-------------+
+        |is_in_range  |
+        +-------------+
+        |        false|
+        |         true|
+        |         true|
+        |         true|
+        |        false|
+        +-------------+
+    """
+    (column,) = ensure_column(column_or_name)
+
+    lower_bound = F.lit(lower)
+    upper_bound = F.lit(upper)
+
+    return (column >= lower_bound) & (column <= upper_bound)
