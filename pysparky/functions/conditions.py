@@ -53,7 +53,7 @@ def condition_or(*conditions: ColumnOrName) -> Column:
     return reduce(or_, parsed_conditions, F.lit(False))
 
 
-def n_character_only(column_or_name: ColumnOrName, n: int) -> Column:
+def is_n_character_only(column_or_name: ColumnOrName, n: int) -> Column:
     """
     Checks if the given column or string contains exactly `n` alphabetic characters.
 
@@ -69,7 +69,7 @@ def n_character_only(column_or_name: ColumnOrName, n: int) -> Column:
     return F.regexp_like(column_or_name, regexp=F.lit(regexp))
 
 
-def two_character_only(column_or_name: ColumnOrName) -> Column:
+def is_two_character_only(column_or_name: ColumnOrName) -> Column:
     """
     Checks if the given column or string contains exactly two alphabetic characters (either lowercase or uppercase).
 
@@ -91,10 +91,10 @@ def two_character_only(column_or_name: ColumnOrName) -> Column:
         |      false|
         +-----------+
     """
-    return n_character_only(column_or_name, n=2)
+    return is_n_character_only(column_or_name, n=2)
 
 
-def all_numbers_only(column_or_name) -> Column:
+def is_all_numbers_only(column_or_name) -> Column:
     """
     Checks if the given column or string contains only numeric characters.
 
@@ -117,16 +117,16 @@ def all_numbers_only(column_or_name) -> Column:
         |         true|
         +-------------+
     """
-    return n_numbers_only(column_or_name, n="+")
+    return is_n_numbers_only(column_or_name, n="+")
 
 
-def n_numbers_only(column_or_name: ColumnOrName, n: int | str) -> Column:
+def is_n_numbers_only(column_or_name: ColumnOrName, n: int | str) -> Column:
     """
     Checks if the given column or string contains exactly `n` numeric characters.
 
     Args:
         column_or_name (ColumnOrName): The column or string to be checked.
-        n (int | str): The exact number of numeric characters to match.
+        n (int | str): The exact number of numeric characters to match. or "+" for any length number.
 
     Returns:
         Column: A column of boolean values indicating whether each entry matches the regular expression.
@@ -157,7 +157,7 @@ def n_numbers_only(column_or_name: ColumnOrName, n: int | str) -> Column:
     return F.regexp_like(column_or_name, F.lit(regexp))
 
 
-def printable_only(column_or_name: ColumnOrName) -> Column:
+def is_printable_only(column_or_name: ColumnOrName) -> Column:
     """
     Checks if the given column or string contains only printable characters.
 

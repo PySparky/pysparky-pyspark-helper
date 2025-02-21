@@ -29,3 +29,9 @@ repos:
     hooks:
       - id: flake8
         args: ["--max-line-length=115", "--extend-ignore=E203,E501,E731"]
+  # - repo: https://github.com/pycqa/pylint
+  #   rev: v3.3.4
+  #   hooks:
+  #     - id: pylint
+  #       args: ["--disable=C0114,C0115,C0116"]  # Example args to disable specific warnings
+  #       stages: [pre-commit]

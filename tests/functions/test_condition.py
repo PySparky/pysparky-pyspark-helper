@@ -70,7 +70,9 @@ def test_n_character_only(spark):
     df = spark.createDataFrame(data, ["value"])
 
     # Test for n = 3
-    result_df = df.withColumn("is_three_char", F_.n_character_only(F.col("value"), 3))
+    result_df = df.withColumn(
+        "is_three_char", F_.is_n_character_only(F.col("value"), 3)
+    )
     expected_data = [
         ("abc", True),
         ("abcd", False),
@@ -84,7 +86,7 @@ def test_n_character_only(spark):
     assert result_df.collect() == expected_df.collect()
 
     # Test for n = 4
-    result_df = df.withColumn("is_four_char", F_.n_character_only(F.col("value"), 4))
+    result_df = df.withColumn("is_four_char", F_.is_n_character_only(F.col("value"), 4))
     expected_data = [
         ("abc", False),
         ("abcd", True),
@@ -111,7 +113,7 @@ def test_two_character_only(spark):
     df = spark.createDataFrame(data, ["value", "output"])
 
     result_df = df.select(
-        "value", F_.two_character_only(F.col("value")).alias("output")
+        "value", F_.is_two_character_only(F.col("value")).alias("output")
     )
 
     assert df.collect() == result_df.collect()
@@ -121,7 +123,7 @@ def test_all_numbers_string(spark):
     data = [("123",), ("4567",), ("89a",), ("",), ("0",), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
-    result_df = df.withColumn("is_all_numbers", F_.all_numbers_only(F.col("value")))
+    result_df = df.withColumn("is_all_numbers", F_.is_all_numbers_only(F.col("value")))
     expected_data = [
         ("123", True),
         ("4567", True),
@@ -139,7 +141,7 @@ def test_all_numbers_integer(spark):
     data = [(123,), (4567,), (890,), (0,), (1234567890,), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
-    result_df = df.withColumn("is_all_numbers", F_.all_numbers_only(F.col("value")))
+    result_df = df.withColumn("is_all_numbers", F_.is_all_numbers_only(F.col("value")))
     expected_data = [
         (123, True),
         (4567, True),
@@ -157,7 +159,7 @@ def test_all_numbers_float(spark):
     data = [(123.45,), (6789.01,), (234.56,), (0.0,), (123456.789,), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
-    result_df = df.withColumn("is_all_numbers", F_.all_numbers_only(F.col("value")))
+    result_df = df.withColumn("is_all_numbers", F_.is_all_numbers_only(F.col("value")))
     expected_data = [
         (123.45, False),
         (6789.01, False),
@@ -175,7 +177,9 @@ def test_n_numbers_string(spark):
     data = [("12",), ("4567",), ("89a",), ("00",), ("0",), ("",), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
-    result_df = df.withColumn("is_all_numbers", F_.n_numbers_only(F.col("value"), n=2))
+    result_df = df.withColumn(
+        "is_all_numbers", F_.is_n_numbers_only(F.col("value"), n=2)
+    )
     expected_data = [
         ("12", True),
         ("4567", False),
@@ -194,7 +198,9 @@ def test_n_numbers_integer(spark):
     data = [(12,), (4567,), (89,), (00,), (0,), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
-    result_df = df.withColumn("is_all_numbers", F_.n_numbers_only(F.col("value"), n=2))
+    result_df = df.withColumn(
+        "is_all_numbers", F_.is_n_numbers_only(F.col("value"), n=2)
+    )
     expected_data = [
         (12, True),
         (4567, False),
@@ -212,7 +218,9 @@ def test_n_numbers_float(spark):
     data = [(12.2,), (4567.1,), (89.0,), (00.0,), (0.0,), (None,)]
     df = spark.createDataFrame(data, ["value"])
 
-    result_df = df.withColumn("is_all_numbers", F_.n_numbers_only(F.col("value"), n=2))
+    result_df = df.withColumn(
+        "is_all_numbers", F_.is_n_numbers_only(F.col("value"), n=2)
+    )
     expected_data = [
         (12.2, False),
         (4567.1, False),
@@ -237,7 +245,7 @@ def test_printable_only(spark):
     ]
     df = spark.createDataFrame(data, ["value"])
 
-    result_df = df.withColumn("is_printable", F_.printable_only(F.col("value")))
+    result_df = df.withColumn("is_printable", F_.is_printable_only(F.col("value")))
     expected_data = [
         ("Hello!", True),
         ("World", True),
