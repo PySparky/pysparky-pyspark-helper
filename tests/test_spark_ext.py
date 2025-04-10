@@ -1,7 +1,12 @@
+from unittest.mock import MagicMock
+
 import pytest
 
-from pysparky.spark_ext import (convert_1d_list_to_dataframe,
-                                createDataFrame_from_dict)
+from pysparky.spark_ext import (
+    check_table_exists,
+    convert_1d_list_to_dataframe,
+    createDataFrame_from_dict,
+)
 
 
 def test_createDataFrame_from_dict(spark):
@@ -12,7 +17,7 @@ def test_createDataFrame_from_dict(spark):
     expected_data = [(1, 100), (2, 200), (3, 300)]
     expected_columns = ["id", "value"]
 
-    result_df = spark.createDataFrame_from_dict(data_dict)
+    result_df = createDataFrame_from_dict(spark, data_dict)
 
     assert result_df.collect() == expected_data
     assert result_df.columns == expected_columns
@@ -43,25 +48,25 @@ def test_convert_1d_list_to_dataframe_invalid_axis(spark):
         convert_1d_list_to_dataframe(spark, list_, column_names, axis="invalid")
 
 
-
-
-
 def test_check_table_exists(spark):
     # Mock the output of the .collect() method
     mock_collect = MagicMock()
     mock_collect.return_value = [MagicMock(tableName="test_table")]
 
     # Patch the .collect() method in the SparkSession
-    spark_session_fixture.sql = MagicMock(return_value=MagicMock(collect=mock_collect))
+    spark.sql = MagicMock(return_value=MagicMock(collect=mock_collect))
 
     # Test case where the table exists
-    assert check_table_exists(spark_session_fixture, "test_catalog", "test_database", "test_table") is True
+    assert (
+        check_table_exists(spark, "test_catalog", "test_database", "test_table") is True
+    )
 
     # Test case where the table does not exist
     mock_collect.return_value = []
-    assert check_table_exists(spark_session_fixture, "test_catalog", "test_database", "non_existent_table") is False
-
-
+    assert (
+        check_table_exists(spark, "test_catalog", "test_database", "non_existent_table")
+        is False
+    )
 
 
 if __name__ == "__main__":

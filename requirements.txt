@@ -3,6 +3,7 @@ pytest
 isort
 pyarrow
 mypy
+pre-commit
 # build
 mkdocs-material
 mkdocstrings-python
