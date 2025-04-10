@@ -43,5 +43,26 @@ def test_convert_1d_list_to_dataframe_invalid_axis(spark):
         convert_1d_list_to_dataframe(spark, list_, column_names, axis="invalid")
 
 
+
+
+
+def test_check_table_exists(spark):
+    # Mock the output of the .collect() method
+    mock_collect = MagicMock()
+    mock_collect.return_value = [MagicMock(tableName="test_table")]
+
+    # Patch the .collect() method in the SparkSession
+    spark_session_fixture.sql = MagicMock(return_value=MagicMock(collect=mock_collect))
+
+    # Test case where the table exists
+    assert check_table_exists(spark_session_fixture, "test_catalog", "test_database", "test_table") is True
+
+    # Test case where the table does not exist
+    mock_collect.return_value = []
+    assert check_table_exists(spark_session_fixture, "test_catalog", "test_database", "non_existent_table") is False
+
+
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

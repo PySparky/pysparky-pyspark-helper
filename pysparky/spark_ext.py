@@ -208,3 +208,24 @@ def createDataFrame_from_dict(spark: SparkSession, dict_: dict) -> DataFrame:
     data = list(zip(*dict_.values()))
     label = list(dict_.keys())
     return spark.createDataFrame(data, label)
+
+
+def check_table_exists(spark: SparkSession, catalog: str, database: str, table_name: str) -> bool:
+    """
+    Checks if a specific table exists in the given catalog.
+
+    Args:
+        spark (SparkSession): The Spark session.
+        catalog (str): The catalog name.
+        table_name (str): The name of the table to check.
+
+    Returns:
+        bool: True if the table exists, False otherwise.
+    """
+    # Retrieve the list of tables in the specified catalog
+    tables = spark.sql(f"SHOW TABLES IN {catalog}.{database}").collect()
+
+    # Check if the specific table exists
+    table_exists = any(table.tableName == table_name for table in tables)
+
+    return table_exists
