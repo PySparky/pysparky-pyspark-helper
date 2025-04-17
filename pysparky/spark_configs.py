@@ -1,8 +1,27 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Dict
+
+from pyspark import SparkConf
 
 
+# Base
+class SparkConfigBase(ABC):
+    @abstractmethod
+    def to_spark_config_map(self) -> Dict[str, str]:
+        """Return a dictionary of Spark config settings."""
+        pass
+
+    def get_spark_conf(self) -> SparkConf:
+        """Return a SparkConf object based on the config map."""
+        conf = SparkConf()
+        conf.setAll(list(self.to_spark_config_map().items()))
+        return conf
+
+
+# Actual Classes
 @dataclass
-class AwsS3TablesSparkConfig:
+class AwsS3TablesSparkConfig(SparkConfigBase):
     """
     Example:
         spark_configs = AwsS3TablesSparkConfig(
@@ -14,7 +33,7 @@ class AwsS3TablesSparkConfig:
 
     catalog_name: str
     table_bucket_arn: str
-    jars_packages: tuple[str] = (
+    jars_packages: tuple[str, ...] = (
         "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.6.1",
         "software.amazon.awssdk:s3tables:2.29.26",
         "software.amazon.s3tables:s3-tables-catalog-for-iceberg:0.1.5",
@@ -23,7 +42,7 @@ class AwsS3TablesSparkConfig:
         "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions"
     )
 
-    def to_spark_config(self):
+    def to_spark_config_map(self) -> dict:
         return {
             "spark.sql.extensions": self.sql_extensions,
             "spark.sql.defaultCatalog": self.catalog_name,
@@ -34,6 +53,24 @@ class AwsS3TablesSparkConfig:
         }
 
 
+@dataclass
+class AwsS3SparkConfig(SparkConfigBase):
+    """
+    Example:
+        spark_configs = AwsS3SparkConfig(
+        ).to_spark_config_map()
+        spark = SparkSession.builder.config(map=spark_configs).getOrCreate()
+    """
+
+    jars_packages: tuple[str, ...] = ("org.apache.hadoop:hadoop-aws:3.3.4",)
+
+    def to_spark_config_map(self) -> dict:
+        return {
+            "spark.jars.packages": ",".join(self.jars_packages),
+        }
+
+
+# Other
 iceberg_spark_config = {
     "spark.jars.packages": "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.7.1",
     "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",

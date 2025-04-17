@@ -210,7 +210,9 @@ def createDataFrame_from_dict(spark: SparkSession, dict_: dict) -> DataFrame:
     return spark.createDataFrame(data, label)
 
 
-def check_table_exists(spark: SparkSession, catalog: str, database: str, table_name: str) -> bool:
+def check_table_exists(
+    spark: SparkSession, catalog: str, database: str, table_name: str
+) -> bool:
     """
     Checks if a specific table exists in the given catalog.
 
