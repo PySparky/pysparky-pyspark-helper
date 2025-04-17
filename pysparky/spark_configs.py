@@ -1,3 +1,39 @@
+from dataclasses import dataclass
+
+
+@dataclass
+class AwsS3TablesSparkConfig:
+    """
+    Example:
+        spark_configs = AwsS3TablesSparkConfig(
+            catalog_name="s3tablescatalog/tablebucket",
+            table_bucket_arn="arn:aws:s3tables:us-east-1:886416940696:bucket/tablebucket"
+        ).to_spark_config()
+        spark = SparkSession.builder.config(map=spark_configs).getOrCreate()
+    """
+
+    catalog_name: str
+    table_bucket_arn: str
+    jars_packages: tuple[str] = (
+        "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.6.1",
+        "software.amazon.awssdk:s3tables:2.29.26",
+        "software.amazon.s3tables:s3-tables-catalog-for-iceberg:0.1.5",
+    )
+    sql_extensions: str = (
+        "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions"
+    )
+
+    def to_spark_config(self):
+        return {
+            "spark.sql.extensions": self.sql_extensions,
+            "spark.sql.defaultCatalog": self.catalog_name,
+            f"spark.sql.catalog.{self.catalog_name}": "org.apache.iceberg.spark.SparkCatalog",
+            f"spark.sql.catalog.{self.catalog_name}.warehouse": self.table_bucket_arn,
+            f"spark.sql.catalog.{self.catalog_name}.catalog-impl": "software.amazon.s3tables.iceberg.S3TablesCatalog",
+            "spark.jars.packages": ",".join(self.jars_packages),
+        }
+
+
 iceberg_spark_config = {
     "spark.jars.packages": "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.7.1",
     "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
@@ -46,8 +82,5 @@ aws_s3_tables_spark_config = {
     "spark.sql.defaultCatalog": catalog_name,
     f"spark.sql.catalog.{catalog_name}": "org.apache.iceberg.spark.SparkCatalog",
     f"spark.sql.catalog.{catalog_name}.catalog-impl": "software.amazon.s3tables.iceberg.S3TablesCatalog",
-    f"spark.sql.catalog.{catalog_name}.warehouse": table_bucket_arn,
-    "fs.s3a.aws.credentials.provider": "com.amazonaws.auth.EnvironmentVariableCredentialsProvider"
+    f"spark.sql.catalog.{catalog_name}.warehouse": "table_bucket_arn",
 }
-
-
