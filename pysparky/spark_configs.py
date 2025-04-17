@@ -56,6 +56,11 @@ class AwsS3TablesSparkConfig(SparkConfigBase):
 @dataclass
 class AwsS3SparkConfig(SparkConfigBase):
     """
+    Remember to set the following env variable
+        AWS_REGION=
+        AWS_SECRET_ACCESS_KEY=
+        AWS_ACCESS_KEY_ID=
+
     Example:
         spark_configs = AwsS3SparkConfig(
         ).to_spark_config_map()
