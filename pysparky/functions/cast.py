@@ -63,8 +63,14 @@ def to_timestamps(column_or_name: ColumnOrName, formats: list[str]) -> Column:
     (column,) = ensure_column(column_or_name)
 
     def reducer(acc, format):
+        format_col = F.lit(format)
         return acc.when(
-            F.to_timestamp(column, format).isNotNull(), F.to_timestamp(column, format)
+            # this will supress the error
+            F.try_to_timestamp(column, format_col).isNotNull(),
+            F.try_to_timestamp(column, format_col),
         )
 
-    return reduce(reducer, formats, F).otherwise(F.to_timestamp(column))  # type: ignore
+    return reduce(reducer, formats, F).otherwise(
+        # This follows spark.sql.ansi.enabled behavior
+        F.to_timestamp(column)
+    )
