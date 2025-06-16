@@ -188,5 +188,39 @@ def test_split_dataframe_by_column_valid(spark):
     assert rows_a == [1, 3], "Category A rows should match expected IDs"
 
 
+@pytest.fixture
+def sample_df(spark):
+    data = [
+        ("Alice", "Engineering", 29),
+        ("Bob", "Marketing", 35),
+        ("Charlie", "Engineering", 32),
+        ("Diana", "HR", 28),
+        ("Ethan", "Marketing", 41),
+        ("Fiona", "HR", 30),
+    ]
+    columns = ["name", "department", "age"]
+    return spark.createDataFrame(data, columns)
+
+
+def test_split_dataframe_by_column_groups(sample_df):
+    group1 = ["HR", "Engineering"]
+    group2 = ["Marketing"]
+
+    df1, df2 = utils.split_dataframe_by_column_groups(
+        sample_df, "department", group1, group2
+    )
+
+    # Collect results
+    result1 = set(row["department"] for row in df1.collect())
+    result2 = set(row["department"] for row in df2.collect())
+
+    assert result1 == {"HR", "Engineering"}
+    assert result2 == {"Marketing"}
+
+    # Check row counts
+    assert df1.count() == 4
+    assert df2.count() == 2
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

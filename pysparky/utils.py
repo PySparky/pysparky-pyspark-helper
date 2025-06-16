@@ -96,3 +96,20 @@ def split_dataframe_by_column(
     }
 
     return filtered_dfs
+
+
+def split_dataframe_by_column_groups(
+    df: DataFrame, column_name: str, *value_groups: list[str | list]
+) -> tuple[DataFrame, ...]:
+    """
+    Splits a DataFrame into multiple DataFrames based on groups of values in a specified column.
+
+    Parameters:
+    df (DataFrame): The input PySpark DataFrame.
+    column_name (str): The column to split on.
+    *value_groups (list): Variable number of value groups (each a list of values).
+
+    Returns:
+    tuple: A tuple of DataFrames, one for each group of values.
+    """
+    return tuple(df.filter(df[column_name].isin(group)) for group in value_groups)
