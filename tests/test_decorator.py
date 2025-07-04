@@ -1,6 +1,4 @@
 import pytest
-from pyspark.sql import Column
-from pyspark.sql import functions as F
 
 # Now import the decorators
 from pysparky.decorator import extension_enabler

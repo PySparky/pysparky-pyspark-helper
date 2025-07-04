@@ -1,26 +1,19 @@
 try:
-    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-
+    from transformers import PreTrainedModel, PreTrainedTokenizer
 except ImportError as e:
     raise ImportError(
         "The 'transformers' library is required for this feature. "
         "Install it with: pip install pysparky[ai]"
     ) from e
 
-from pyspark.sql import SparkSession, Row
-from pyspark.sql.functions import udf, UserDefinedFunction
-from pyspark.sql.types import StructType, StructField, StringType, LongType
 from pyspark import Broadcast
-
-from pyspark.broadcast import Broadcast
-from pyspark.sql.functions import udf
+from pyspark.sql.functions import UserDefinedFunctionLike, udf
 from pyspark.sql.types import StringType
-from transformers import PreTrainedModel, PreTrainedTokenizer
 
 
 def build_text_generation_udf(
     model_bc: Broadcast, tokenizer_bc: Broadcast, system_prompt: str
-) -> UserDefinedFunction:
+) -> UserDefinedFunctionLike:
     """Creates a Spark UDF for text generation using a Hugging Face model and tokenizer.
 
     This function sets up a user-defined function (UDF) that can be used in Spark DataFrames

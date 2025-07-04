@@ -1,5 +1,4 @@
 import pytest
-from pyspark.sql import Column, SparkSession
 from pyspark.sql import functions as F
 
 from pysparky.data_validator import DataValidator, ValidationRule

@@ -1,6 +1,3 @@
-import functools
-from operator import and_, or_
-
 import pytest
 from pyspark.sql import functions as F
 

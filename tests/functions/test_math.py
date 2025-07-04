@@ -6,7 +6,6 @@ from pysparky.functions.math_ import haversine_distance
 
 
 def test_haversine_distance(spark):
-
     import math
 
     def haversine(lat1, lon1, lat2, lon2):

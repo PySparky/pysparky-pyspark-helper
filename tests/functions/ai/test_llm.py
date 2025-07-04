@@ -1,7 +1,8 @@
 import pytest
-from transformers import AutoTokenizer, AutoModelForCausalLM
 from pyspark.sql import Row
-from pyspark.sql.types import StructType, StructField, StringType, LongType
+from pyspark.sql.types import LongType, StringType, StructField, StructType
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
 from pysparky.functions.ai.llm import build_text_generation_udf
 
 
