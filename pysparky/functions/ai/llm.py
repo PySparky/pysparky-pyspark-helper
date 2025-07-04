@@ -7,13 +7,14 @@ except ImportError as e:
     ) from e
 
 from pyspark import Broadcast
-from pyspark.sql.functions import UserDefinedFunctionLike, udf
+from pyspark.sql.functions import udf
 from pyspark.sql.types import StringType
+from pyspark.sql.udf import UserDefinedFunction
 
 
 def build_text_generation_udf(
     model_bc: Broadcast, tokenizer_bc: Broadcast, system_prompt: str
-) -> UserDefinedFunctionLike:
+) -> UserDefinedFunction:
     """Creates a Spark UDF for text generation using a Hugging Face model and tokenizer.
 
     This function sets up a user-defined function (UDF) that can be used in Spark DataFrames
