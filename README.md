@@ -23,6 +23,10 @@ python -m build
 ```
 pip install git+https://github.com/PySparky/pysparky-pyspark-helper.git
 pip uninstall pysparky
+
+# with transformer dependence
+pip install "git+https://github.com/PySparky/pysparky-pyspark-helper.git#egg=pysparky-pyspark-helper[ai]"
+pip install pysparky[ai]
 ```
 
 # TODO
