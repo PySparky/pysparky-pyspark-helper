@@ -272,5 +272,29 @@ def execute_transformation_blueprint(
 
 
 def agg_apply(df: DataFrame, agg_exprs: Dict[str, Column]) -> DataFrame:
-    """Apply aggregation expressions and return a DataFrame."""
+    """Apply aggregation expressions and return a DataFrame.
+
+    Args:
+        df (DataFrame): The input Spark DataFrame.
+        agg_exprs (Dict[str, Column]): A dictionary where keys are the aliases for the aggregated columns
+                                       and values are the Spark aggregation expressions (Columns).
+
+    Returns:
+        DataFrame: A DataFrame containing the aggregated results.
+
+    Examples:
+        >>> df = spark.createDataFrame([(1, "A"), (2, "A"), (3, "B")], ["value", "category"])
+        >>> agg_exprs = {
+        ...     "total_value": F.sum("value"),
+        ...     "max_value": F.max("value"),
+        ...     "count": F.count("*")
+        ... }
+        >>> result = agg_apply(df, agg_exprs)
+        >>> result.show()
+        +-----------+---------+-----+
+        |total_value|max_value|count|
+        +-----------+---------+-----+
+        |          6|        3|    3|
+        +-----------+---------+-----+
+    """
     return df.agg(*[expr.alias(name) for name, expr in agg_exprs.items()])
