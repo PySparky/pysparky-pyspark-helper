@@ -1,3 +1,5 @@
+from typing import Union
+
 from pyspark.sql import Column, Window
 from pyspark.sql import functions as F
 
@@ -104,3 +106,22 @@ def cumsum(  # pylint: disable=too-many-positional-arguments
     )
 
     return (cumsum_ / total_sum).alias(alias)
+
+
+def sumif(
+    condition: Column,
+    value: Union[Column, int, float] = 1,
+    otherwise_value: Union[Column, int, float] = 0,
+) -> Column:
+    """Return a conditional sum using Spark expressions.
+
+    Args:
+        condition: Boolean Spark expression to filter rows.
+        value: Column or scalar to sum when condition is True.
+        otherwise_value: Column or scalar to use when condition is False.
+
+    Returns:
+        Column: Spark aggregation expression that sums `value` when true,
+        otherwise `otherwise_value`.
+    """
+    return F.sum(F.when(condition, value).otherwise(otherwise_value))
