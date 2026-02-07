@@ -23,12 +23,14 @@ class SparkConfigBase(ABC):
 @dataclass
 class AwsS3TablesSparkConfig(SparkConfigBase):
     """
-    Example:
-        spark_configs = AwsS3TablesSparkConfig(
-            catalog_name="s3tablescatalog/tablebucket",
-            table_bucket_arn="arn:aws:s3tables:us-east-1:886416940696:bucket/tablebucket"
-        ).to_spark_config()
-        spark = SparkSession.builder.config(map=spark_configs).getOrCreate()
+    Examples:
+        ```python
+        >>> spark_configs = AwsS3TablesSparkConfig(
+        ...     catalog_name="s3tablescatalog/tablebucket",
+        ...     table_bucket_arn="arn:aws:s3tables:us-east-1:886416940696:bucket/tablebucket"
+        ... ).to_spark_config_map()
+        >>> spark = SparkSession.builder.config(map=spark_configs).getOrCreate()
+        ```
     """
 
     catalog_name: str
@@ -61,10 +63,11 @@ class AwsS3SparkConfig(SparkConfigBase):
         AWS_SECRET_ACCESS_KEY=
         AWS_ACCESS_KEY_ID=
 
-    Example:
-        spark_configs = AwsS3SparkConfig(
-        ).to_spark_config_map()
-        spark = SparkSession.builder.config(map=spark_configs).getOrCreate()
+    Examples:
+        ```python
+        >>> spark_configs = AwsS3SparkConfig().to_spark_config_map()
+        >>> spark = SparkSession.builder.config(map=spark_configs).getOrCreate()
+        ```
     """
 
     jars_packages: tuple[str, ...] = ("org.apache.hadoop:hadoop-aws:3.3.4",)

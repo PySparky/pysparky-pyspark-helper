@@ -29,8 +29,9 @@ def haversine_distance(
 
     Examples:
         ```python
-        haversine_distance(F.lit(52.1552), F.lit(5.3876), F.lit(59.9111), F.lit(10.7503))
-        923.8038067341608
+        >>> df = spark.createDataFrame([(52.1552, 5.3876, 59.9111, 10.7503)], ["lat1", "long1", "lat2", "long2"])
+        >>> df.select(haversine_distance("lat1", "long1", "lat2", "long2")).first()[0]
+        923.8038
         ```
     """
     # Convert latitude and longitude from degrees to radians
@@ -80,9 +81,18 @@ def cumsum(  # pylint: disable=too-many-positional-arguments
         Column: A column representing the cumulative sum.
 
     Examples:
+        ```python
         >>> df = spark.createDataFrame([(1, "A", 10), (2, "A", 20), (3, "B", 30)], ["id", "category", "value"])
         >>> result_df = df.select("id", "category", "value", cumsum(F.col("value"), partition_by=[F.col("category")], is_descending=True))
-        >>> result_df.display()
+        >>> result_df.show()
+        +---+--------+-----+------+
+        | id|category|value|cumsum|
+        +---+--------+-----+------+
+        |  1|       A|   10|    30|
+        |  2|       A|   20|    20|
+        |  3|       B|   30|    30|
+        +---+--------+-----+------+
+        ```
     """
     (column,) = ensure_column(column_or_name)
 
@@ -125,6 +135,7 @@ def sumif(
         otherwise `otherwise_value`.
 
     Examples:
+        ```python
         >>> df = spark.createDataFrame([("A", 10), ("B", 20), ("A", 30)], ["category", "value"])
         >>> df.select(sumif(F.col("category") == "A").alias("count_a")).show()
         +-------+
@@ -139,5 +150,6 @@ def sumif(
         +-----+
         |   40|
         +-----+
+        ```
     """
     return F.sum(F.when(condition, value).otherwise(otherwise_value))

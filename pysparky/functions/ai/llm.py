@@ -32,14 +32,16 @@ def build_text_generation_udf(
     Raises:
         TypeError: If `model_bc` or `tokenizer_bc` is not a Broadcast instance.
 
-    Example:
-        >>> ...
+    Examples:
+        ```python
+        >>> from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
         >>> model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
         >>> tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-small")
         >>> t5_udf = build_text_generation_udf(
-                sc.broadcast(model), sc.broadcast(tokenizer), "sentiment of the text"
-            )
+        ...     sc.broadcast(model), sc.broadcast(tokenizer), "sentiment of the text"
+        ... )
         >>> results_df = input_df.withColumn("output_column", t5_udf("sentence"))
+        ```
     """
     if not isinstance(model_bc, Broadcast):
         raise TypeError(

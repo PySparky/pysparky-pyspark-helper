@@ -24,6 +24,24 @@ def get_latest_record_from_column(
 
     Returns:
         DataFrame: A DataFrame with the most recent record for each partition.
+
+    Examples:
+        ```python
+        >>> data = [
+        ...     ("A", 1, "2021-01-01"),
+        ...     ("A", 2, "2021-01-02"),
+        ...     ("B", 1, "2021-01-01")
+        ... ]
+        >>> df = spark.createDataFrame(data, ["id", "version", "date"])
+        >>> result = get_latest_record_from_column(df, "id", "date")
+        >>> result.show()
+        +---+-------+----------+
+        | id|version|      date|
+        +---+-------+----------+
+        |  A|      2|2021-01-02|
+        |  B|      1|2021-01-01|
+        +---+-------+----------+
+        ```
     """
     window_order_by_column_names = enabler.ensure_list(window_order_by_column_names)
 
@@ -57,7 +75,7 @@ def quarantine_duplicate_record(
         contains unique records, and the second DataFrame contains duplicate records.
 
     Examples:
-        ``` python
+        ```python
         >>> data = [(1, "A"), (2, "B"), (3, "C"), (1, "A"), (4, "D"), (2, "B")]
         >>> sdf = spark.createDataFrame(data, ["id", "value"])
         >>> unique_records, duplicate_records = quarantine_duplicate_record(sdf, "id")
@@ -100,7 +118,7 @@ def get_only_duplicate_record(sdf: DataFrame, column_name: str) -> DataFrame:
         DataFrame: A DataFrame containing only the duplicate records.
 
     Examples:
-        ``` py
+        ```python
         >>> data = [(1, "A"), (2, "B"), (3, "C"), (1, "A"), (4, "D"), (2, "B")]
         >>> sdf = spark.createDataFrame(data, ["id", "value"])
         >>> duplicate_records = get_only_duplicate_record(sdf, "id")
@@ -132,7 +150,7 @@ def get_only_unique_record(sdf: DataFrame, column_name: str) -> DataFrame:
         DataFrame: A DataFrame containing only the unique records.
 
     Examples:
-        ``` py
+        ```python
         >>> data = [(1, "A"), (2, "B"), (3, "C"), (1, "A"), (4, "D"), (2, "B")]
         >>> sdf = spark.createDataFrame(data, ["id", "value"])
         >>> unique_records = get_only_unique_record(sdf, "id")
