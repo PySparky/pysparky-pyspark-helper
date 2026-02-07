@@ -1,6 +1,6 @@
 from functools import reduce
 from operator import and_, or_
-from typing import Callable
+from typing import Callable, Dict
 
 from pyspark.sql import Column, DataFrame
 from pyspark.sql import functions as F
@@ -269,3 +269,8 @@ def execute_transformation_blueprint(
             for new_column_name, column_processing in blueprint.items()
         ]
     )
+
+
+def agg_apply(df: DataFrame, agg_exprs: Dict[str, Column]) -> DataFrame:
+    """Apply aggregation expressions and return a DataFrame."""
+    return df.agg(*[expr.alias(name) for name, expr in agg_exprs.items()])

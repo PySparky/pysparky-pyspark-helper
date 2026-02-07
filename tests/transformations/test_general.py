@@ -142,5 +142,25 @@ def test_execute_transformation_blueprint(spark):
     assert result == expected
 
 
+def test_agg_apply(spark):
+    data = [("A", 10), ("B", 20), ("A", 30)]
+    df = spark.createDataFrame(data, ["category", "value"])
+
+    agg_exprs = {
+        "total_value": F.sum("value"),
+        "max_value": F.max("value"),
+        "count": F.count("*"),
+    }
+
+    result_df = te.agg_apply(df, agg_exprs)
+
+    # Note: result order might vary because it's a map iteration, but we can check columns.
+    result = result_df.collect()[0]
+
+    assert result["total_value"] == 60
+    assert result["max_value"] == 30
+    assert result["count"] == 3
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
