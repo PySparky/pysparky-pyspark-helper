@@ -123,5 +123,21 @@ def sumif(
     Returns:
         Column: Spark aggregation expression that sums `value` when true,
         otherwise `otherwise_value`.
+
+    Examples:
+        >>> df = spark.createDataFrame([("A", 10), ("B", 20), ("A", 30)], ["category", "value"])
+        >>> df.select(sumif(F.col("category") == "A").alias("count_a")).show()
+        +-------+
+        |count_a|
+        +-------+
+        |      2|
+        +-------+
+
+        >>> df.select(sumif(F.col("category") == "A", F.col("value")).alias("sum_a")).show()
+        +-----+
+        |sum_a|
+        +-----+
+        |   40|
+        +-----+
     """
     return F.sum(F.when(condition, value).otherwise(otherwise_value))
