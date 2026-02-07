@@ -158,5 +158,40 @@ def test_normalized_cumsum(spark):
     assert result_df.collect() == expected_df.collect()
 
 
+def test_sumif(spark):
+    data = [
+        (1, "A", 10),
+        (2, "A", 20),
+        (3, "B", 30),
+        (4, "B", 40),
+        (5, "A", 50),
+        (6, "B", 60),
+    ]
+    df = spark.createDataFrame(data, ["id", "category", "value"])
+
+    # 1. Sum count where category is 'A' (value defaults to 1)
+    result_count = df.select(
+        F_.sumif(F.col("category") == "A").alias("count_a")
+    ).collect()[0]["count_a"]
+    assert result_count == 3
+
+    # 2. Sum value where category is 'A'
+    result_sum = df.select(
+        F_.sumif(F.col("category") == "A", value=F.col("value")).alias("sum_a")
+    ).collect()[0]["sum_a"]
+    assert result_sum == 80
+
+    # 3. Sum value where category is 'A', otherwise -100
+    # Condition True (A): 10 + 20 + 50 = 80
+    # Condition False (B): -100 + -100 + -100 = -300
+    # Total = -220
+    result_sum_otherwise = df.select(
+        F_.sumif(
+            F.col("category") == "A", value=F.col("value"), otherwise_value=-100
+        ).alias("sum_a_otherwise")
+    ).collect()[0]["sum_a_otherwise"]
+    assert result_sum_otherwise == -220
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
