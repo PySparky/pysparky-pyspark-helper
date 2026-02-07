@@ -7,7 +7,7 @@ def expect_type(col_name, col_type):
     """
     A decorator function that verifies the data type of a specified column in a Spark DataFrame.
 
-    Parameters:
+    Args:
         col_name (str): The column's name.
         col_type (pyspark.sql.types.DataType): The expected data type for the column.
 
@@ -16,6 +16,16 @@ def expect_type(col_name, col_type):
 
     Raises:
         AssertionError: If the column's data type does not match the expected type.
+
+    Examples:
+        ```python
+        >>> from pyspark.sql.types import IntegerType
+        >>> @expect_type("id", IntegerType())
+        ... def get_data():
+        ...     return spark.createDataFrame([(1,), (2,)], ["id"])
+        >>> df = get_data()
+        ✅: Column 'id' has the expected data type IntegerType()
+        ```
     """
 
     def decorator(func):
@@ -38,7 +48,7 @@ def expect_unique(col_name):
     """
     A decorator function that ensures the uniqueness of a column in a Spark DataFrame.
 
-    Parameters:
+    Args:
         col_name (str): The column's name.
 
     Returns:
@@ -46,6 +56,15 @@ def expect_unique(col_name):
 
     Raises:
         AssertionError: If the column's count and distinct count are not equal.
+
+    Examples:
+        ```python
+        >>> @expect_unique("id")
+        ... def get_data():
+        ...     return spark.createDataFrame([(1,), (2,)], ["id"])
+        >>> df = get_data()
+        ✅: Column 'id' is distinct
+        ```
     """
 
     def decorator(func):
@@ -69,7 +88,7 @@ def expect_criteria(criteria):
     """
     A decorator function that ensures a specific criterion on a Spark DataFrame.
 
-    Parameters:
+    Args:
         criteria (pyspark.sql.column.Column): The filter criterion to be applied to the DataFrame.
 
     Returns:
@@ -77,6 +96,15 @@ def expect_criteria(criteria):
 
     Raises:
         AssertionError: If the filtered count and unfiltered count of the DataFrame are not equal.
+
+    Examples:
+        ```python
+        >>> @expect_criteria(F.col("age") > 0)
+        ... def get_data():
+        ...     return spark.createDataFrame([(10,), (20,)], ["age"])
+        >>> df = get_data()
+        ✅: Criteria '(age > 0)' passed
+        ```
     """
 
     def decorator(func):
@@ -103,6 +131,15 @@ def expect_any_to_one(col1: str | Sequence[str], col2: str | Sequence[str]):
     Args:
         col1 (str | Sequence[str]): Name of the column or a tuple of column names.
         col2 (str | Sequence[str]): Name of the column or a tuple of column names.
+
+    Examples:
+        ```python
+        >>> @expect_any_to_one("city", "country")
+        ... def get_data():
+        ...     return spark.createDataFrame([("Paris", "France"), ("Lyon", "France")], ["city", "country"])
+        >>> df = get_data()
+        ✅: city:country is N:1
+        ```
     """
 
     def decorator(func):
@@ -133,6 +170,16 @@ def expect_one_to_one(col1: str | Sequence[str], col2: str | Sequence[str]):
     Args:
         col1 (str | Sequence[str]): Name of the column or a tuple of column names.
         col2 (str | Sequence[str]): Name of the column or a tuple of column names.
+
+    Examples:
+        ```python
+        >>> @expect_one_to_one("id", "name")
+        ... def get_data():
+        ...     return spark.createDataFrame([(1, "Alice"), (2, "Bob")], ["id", "name"])
+        >>> df = get_data()
+        ✅: id:name is N:1
+        ✅: name:id is N:1
+        ```
     """
 
     any_to_one = expect_any_to_one(col1, col2)

@@ -42,28 +42,28 @@ class DataValidator:
         rules (list[ValidationRule]): A list of validation rules.
 
     Examples:
-        ``` py
-        ValidationRules = [
-            ValidationRule("first_name_check", F_.printable_only("first_name")),
-            ValidationRule("last_name_check", F_.printable_only("last_name")),
-            ValidationRule("address_check", F_.printable_only("address")),
-            ValidationRule("region_check", F_.printable_only("region")),
-            ValidationRule("code_check", [F_.two_character_only("code")]),
-            ValidationRule("postcode_check", F_.printable_only("postcode")),
-        ]
+        ```python
+        >>> ValidationRules = [
+        ...     ValidationRule("first_name_check", F_.is_printable_only("first_name")),
+        ...     ValidationRule("last_name_check", F_.is_printable_only("last_name")),
+        ...     ValidationRule("address_check", F_.is_printable_only("address")),
+        ...     ValidationRule("region_check", F_.is_printable_only("region")),
+        ...     ValidationRule("code_check", [F_.is_two_character_only("code")]),
+        ...     ValidationRule("postcode_check", F_.is_printable_only("postcode")),
+        ... ]
 
-        validator = DataValidator(ValidationRules)
+        >>> validator = DataValidator(ValidationRules)
 
-        conditions = {
-            "first_name_check": F_.printable_only("first_name"),
-            "last_name_check": F_.printable_only("last_name"),
-            "address_check": F_.printable_only("address"),
-            "region_check": F_.printable_only("region"),
-            "code_check": [F_.two_character_only("code")],
-            "postcode_check": F_.printable_only("postcode"),
-        }
+        >>> conditions = {
+        ...     "first_name_check": F_.is_printable_only("first_name"),
+        ...     "last_name_check": F_.is_printable_only("last_name"),
+        ...     "address_check": F_.is_printable_only("address"),
+        ...     "region_check": F_.is_printable_only("region"),
+        ...     "code_check": [F_.is_two_character_only("code")],
+        ...     "postcode_check": F_.is_printable_only("postcode"),
+        ... }
 
-        validator = DataValidator.from_dict(conditions)
+        >>> validator = DataValidator.from_dict(conditions)
         ```
     """
 
@@ -81,18 +81,16 @@ class DataValidator:
             DataValidator: An instance of DataValidator.
 
         Examples:
-            ``` py
-            conditions = {
-                "first_name_check": F_.printable_only("first_name"),
-                "last_name_check": F_.printable_only("last_name"),
-                "address_check": F_.printable_only("address"),
-                "region_check": F_.printable_only("region"),
-                "code_check": [F_.two_character_only("code")],
-                "postcode_check": F_.printable_only("postcode"),
-            }
-
-
-            validator = DataValidator.from_dict(conditions)
+            ```python
+            >>> conditions = {
+            ...     "first_name_check": F_.is_printable_only("first_name"),
+            ...     "last_name_check": F_.is_printable_only("last_name"),
+            ...     "address_check": F_.is_printable_only("address"),
+            ...     "region_check": F_.is_printable_only("region"),
+            ...     "code_check": [F_.is_two_character_only("code")],
+            ...     "postcode_check": F_.is_printable_only("postcode"),
+            ... }
+            >>> validator = DataValidator.from_dict(conditions)
             ```
 
         """
@@ -110,8 +108,8 @@ class DataValidator:
                 and values are combined conditions.
 
         Examples:
-            ``` py
-            sdf.withColumns(validator.query_map)
+            ```python
+            >>> sdf.withColumns(validator.query_map)
             ```
 
         """
@@ -128,8 +126,8 @@ class DataValidator:
             DataFrame: The Spark DataFrame with the conditions applied.
 
         Examples:
-            ``` py
-            validator.apply_conditions(data_sdf)
+            ```python
+            >>> validator.apply_conditions(data_sdf)
             ```
 
         """
@@ -146,8 +144,8 @@ class DataValidator:
             DataFrame: The Spark DataFrame with invalid rows filtered out.
 
         Examples:
-            ``` py
-            validator.filter_invalid(data_sdf)
+            ```python
+            >>> validator.filter_invalid(data_sdf)
             ```
 
         """
@@ -173,8 +171,8 @@ class DataValidator:
             DataFrame: The Spark DataFrame with valid rows filtered out.
 
         Examples:
-            ``` py
-            validator.filter_valid(data_sdf).select(data_sdf.columns).show()
+            ```python
+            >>> validator.filter_valid(data_sdf).select(data_sdf.columns).show()
             ```
 
         """

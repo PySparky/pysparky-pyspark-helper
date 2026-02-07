@@ -9,13 +9,15 @@ def write_single_csv(sdf: DataFrame, path: str, **csvKwargs):
     """
     Writes a single CSV file from a Spark DataFrame.
 
-    Parameters:
-    sdf (DataFrame): The Spark DataFrame to write.
-    path (str): The destination path for the CSV file.
-    **csvKwargs: Additional keyword arguments to pass to the DataFrame's write.csv method.
+    Args:
+        sdf (DataFrame): The Spark DataFrame to write.
+        path (str): The destination path for the CSV file.
+        **csvKwargs: Additional keyword arguments to pass to the DataFrame's write.csv method.
 
-    Example:
-    write_single_csv(spark.range(1), "temp/file.csv", header=True, mode='overwrite')
+    Examples:
+        ```python
+        >>> write_single_csv(spark.range(1), "temp/file.csv", header=True, mode='overwrite')
+        ```
     """
     with tempfile.TemporaryDirectory() as temp_dir:
         sdf.repartition(1).write.csv(temp_dir, **csvKwargs)
@@ -27,15 +29,17 @@ def write_single_csv(sdf: DataFrame, path: str, **csvKwargs):
 #     """
 #     Writes a single CSV file from a Spark DataFrame to an S3 bucket.
 
-#     Parameters:
-#     sdf (DataFrame): The Spark DataFrame to write.
-#     file_name (str): The name of the CSV file to be created.
-#     s3_profile_name (str): The AWS profile name to use for S3 access.
-#     s3_prefix (str): The S3 bucket and prefix where the file will be stored.
-#     **csvKwargs: Additional keyword arguments to pass to the DataFrame's write.csv method.
+#     Args:
+#         sdf (DataFrame): The Spark DataFrame to write.
+#         file_name (str): The name of the CSV file to be created.
+#         s3_profile_name (str): The AWS profile name to use for S3 access.
+#         s3_prefix (str): The S3 bucket and prefix where the file will be stored.
+#         **csvKwargs: Additional keyword arguments to pass to the DataFrame's write.csv method.
 
-#     Example:
-#     write_single_csv_s3(spark.range(1), "file.csv", s3_profile_name="my_profile", s3_prefix="s3://bucket/cenz", header=True, mode='overwrite')
+#     Examples:
+#         ```python
+#         >>> write_single_csv_s3(spark.range(1), "file.csv", s3_profile_name="my_profile", s3_prefix="s3://bucket/cenz", header=True, mode='overwrite')
+#         ```
 
 #     Note:
 #     Only 'overwrite' mode is supported.

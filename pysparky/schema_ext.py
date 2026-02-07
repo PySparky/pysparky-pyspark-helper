@@ -17,5 +17,17 @@ def filter_columns_by_datatype(
 
     Returns:
         T.StructType: A StructType of StructField names that match the specified data type.
+
+    Examples:
+        ```python
+        >>> schema = T.StructType([
+        ...     T.StructField("id", T.IntegerType(), True),
+        ...     T.StructField("name", T.StringType(), True),
+        ...     T.StructField("age", T.IntegerType(), True)
+        ... ])
+        >>> filtered_schema = filter_columns_by_datatype(schema, T.IntegerType())
+        >>> print(filtered_schema)
+        StructType([StructField('id', IntegerType(), True), StructField('age', IntegerType(), True)])
+        ```
     """
     return T.StructType([field for field in struct_type if field.dataType == data_type])

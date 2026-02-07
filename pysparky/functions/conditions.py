@@ -21,11 +21,13 @@ def condition_and(*conditions: ColumnOrName) -> Column:
         Column: A single PySpark Column object representing the combined condition.
 
     Examples:
+        ```python
         >>> condition_and(F.col('col1') > 1, F.col('col2') < 5)
         Column<'((col1 > 1) AND (col2 < 5))'>
 
         >>> condition_and(F.col('col1') > 1, "col2 < 5")
         Column<'((col1 > 1) AND (col2 < 5))'>
+        ```
     """
     parsed_conditions = [
         F.expr(cond) if isinstance(cond, str) else cond for cond in conditions
@@ -44,11 +46,13 @@ def condition_or(*conditions: ColumnOrName) -> Column:
         Column: A single PySpark Column object representing the combined condition.
 
     Examples:
+        ```python
         >>> condition_or(F.col('col1') > 1, F.col('col2') < 5)
         Column<'((col1 > 1) OR (col2 < 5))'>
 
         >>> condition_or(F.col('col1') > 1, "col2 < 5")
         Column<'((col1 > 1) OR (col2 < 5))'>
+        ```
     """
     parsed_conditions = [
         F.expr(cond) if isinstance(cond, str) else cond for cond in conditions
@@ -66,6 +70,20 @@ def is_n_character_only(column_or_name: ColumnOrName, n: int) -> Column:
 
     Returns:
         Column: A column of boolean values indicating whether each entry matches the regular expression.
+
+    Examples:
+        ```python
+        >>> df = spark.createDataFrame([("a",), ("ab",), ("abc",), ("12",)], ["value"])
+        >>> df.select(is_n_character_only(df["value"], 2).alias("is_two_char")).show()
+        +-----------+
+        |is_two_char|
+        +-----------+
+        |      false|
+        |       true|
+        |      false|
+        |      false|
+        +-----------+
+        ```
     """
     # double curly braces {{ }} to escape the braces in the f-string
     regexp = rf"^[a-zA-Z]{{{n}}}$"
@@ -83,8 +101,9 @@ def is_two_character_only(column_or_name: ColumnOrName) -> Column:
         Column: A boolean column indicating whether the input matches the pattern of exactly two alphabetic characters.
 
     Examples:
+        ```python
         >>> df = spark.createDataFrame([("aa",), ("ZZ",), ("a1",), ("abc",)], ["value"])
-        >>> df.select(two_character_only(df["value"]).alias("is_two_char")).show()
+        >>> df.select(is_two_character_only(df["value"]).alias("is_two_char")).show()
         +-----------+
         |is_two_char|
         +-----------+
@@ -93,6 +112,7 @@ def is_two_character_only(column_or_name: ColumnOrName) -> Column:
         |      false|
         |      false|
         +-----------+
+        ```
     """
     return is_n_character_only(column_or_name, n=2)
 
@@ -108,17 +128,19 @@ def is_all_numbers_only(column_or_name) -> Column:
         Column: A column of boolean values indicating whether each entry contains only numeric characters.
 
     Examples:
+        ```python
         >>> df = spark.createDataFrame([("123",), ("4567",), ("89a",), ("",), ("0",)], ["value"])
-        >>> df.select(all_numbers(df["value"]).alias("is_all_numbers")).show()
-        +-------------+
+        >>> df.select(is_all_numbers_only(df["value"]).alias("is_all_numbers")).show()
+        +--------------+
         |is_all_numbers|
-        +-------------+
-        |         true|
-        |         true|
-        |        false|
-        |        false|
-        |         true|
-        +-------------+
+        +--------------+
+        |          true|
+        |          true|
+        |         false|
+        |         false|
+        |          true|
+        +--------------+
+        ```
     """
     return is_n_numbers_only(column_or_name, n="+")
 
@@ -135,17 +157,19 @@ def is_n_numbers_only(column_or_name: ColumnOrName, n: int | str) -> Column:
         Column: A column of boolean values indicating whether each entry matches the regular expression.
 
     Examples:
+        ```python
         >>> df = spark.createDataFrame([("123",), ("4567",), ("89a",), ("",), ("0",)], ["value"])
-        >>> df.select(n_numbers_only(df["value"], 3).alias("is_n_numbers")).show()
-        +-------------+
-        |is_n_numbers |
-        +-------------+
-        |         true|
-        |        false|
-        |        false|
-        |        false|
-        |        false|
-        +-------------+
+        >>> df.select(is_n_numbers_only(df["value"], 3).alias("is_n_numbers")).show()
+        +------------+
+        |is_n_numbers|
+        +------------+
+        |        true|
+        |       false|
+        |       false|
+        |       false|
+        |       false|
+        +------------+
+        ```
     """
     if isinstance(n, int):
         # double curly braces {{ }} to escape the braces in the f-string
@@ -171,17 +195,19 @@ def is_printable_only(column_or_name: ColumnOrName) -> Column:
         Column: A column of boolean values indicating whether each entry contains only printable characters.
 
     Examples:
-        >>> df = spark.createDataFrame([("Hello!",), ("World",), ("123",), ("",), ("Non-printable\x01",)], ["value"])
-        >>> df.select(printable_only(df["value"]).alias("is_printable")).show()
-        +-------------+
-        |is_printable |
-        +-------------+
-        |         true|
-        |         true|
-        |         true|
-        |        false|
-        |        false|
-        +-------------+
+        ```python
+        >>> df = spark.createDataFrame([("Hello!",), ("World",), ("123",), ("",), ("Non-printable\\x01",)], ["value"])
+        >>> df.select(is_printable_only(df["value"]).alias("is_printable")).show()
+        +------------+
+        |is_printable|
+        +------------+
+        |        true|
+        |        true|
+        |        true|
+        |       false|
+        |       false|
+        +------------+
+        ```
     """
     # Regular expression for printable ASCII characters (0x20 to 0x7E)
     regexp = r"^[\x20-\x7E]+$"
@@ -201,6 +227,19 @@ def startswiths(
 
     Returns:
         Column: A PySpark Column expression that evaluates to True if the column starts with any string in the list, otherwise False.
+
+    Examples:
+        ```python
+        >>> df = spark.createDataFrame([("apple",), ("banana",), ("cherry",)], ["fruit"])
+        >>> df.select("fruit", startswiths(F.col("fruit"), ["ap", "ch"]).alias("starts_with")).show()
+        +------+-----------+
+        | fruit|starts_with|
+        +------+-----------+
+        | apple|       true|
+        |banana|      false|
+        |cherry|       true|
+        +------+-----------+
+        ```
     """
     (column,) = ensure_column(column_or_name)
 

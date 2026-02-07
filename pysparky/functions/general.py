@@ -14,6 +14,23 @@ from pysparky.typing import ColumnOrName
 def lower_(col: Column) -> Column:
     """
     This serve as an easy Examples on how this package work
+
+    Args:
+        col (Column): The column to be lowercased.
+
+    Returns:
+        Column: A lowercased column.
+
+    Examples:
+        ```python
+        >>> df = spark.createDataFrame([("Hello",)], ["text"])
+        >>> df.select(lower_(F.col("text"))).show()
+        +-----------+
+        |lower(text)|
+        +-----------+
+        |      hello|
+        +-----------+
+        ```
     """
     return F.lower(col)
 
@@ -37,6 +54,7 @@ def chain(self, func, *args, **kwargs) -> Column:
         Column: A new Column object resulting from applying the function.
 
     Examples:
+        ```python
         >>> df = spark.createDataFrame([("hello",)], ["text"])
         >>> def custom_upper(col):
         ...     return F.upper(col)
@@ -57,6 +75,7 @@ def chain(self, func, *args, **kwargs) -> Column:
         +-----+-------------+
         |hello|   Pre: hello|
         +-----+-------------+
+        ```
 
     Note:
         The function passed to `chain` should expect a Column as its first argument,
@@ -79,6 +98,19 @@ def replace_strings_to_none(
 
     Returns:
         Column: A Spark DataFrame column with the values replaced.
+
+    Examples:
+        ```python
+        >>> df = spark.createDataFrame([("",), ("foo",), (None,)], ["col"])
+        >>> df.select(replace_strings_to_none(F.col("col"), [""]).alias("cleaned")).show()
+        +-------+
+        |cleaned|
+        +-------+
+        |   null|
+        |    foo|
+        |   null|
+        +-------+
+        ```
     """
 
     (column,) = ensure_column(column_or_name)
@@ -96,6 +128,17 @@ def single_space_and_trim(column_or_name: ColumnOrName) -> Column:
 
     Returns:
         Column: A trimmed column with single spaces.
+
+    Examples:
+        ```python
+        >>> df = spark.createDataFrame([("  foo   bar  ",)], ["text"])
+        >>> df.select(single_space_and_trim(F.col("text")).alias("cleaned")).show()
+        +-------+
+        |cleaned|
+        +-------+
+        |foo bar|
+        +-------+
+        ```
     """
 
     return F.trim(F.regexp_replace(column_or_name, r"\s+", " "))
@@ -117,6 +160,7 @@ def get_value_from_map(column_or_name: ColumnOrName, dict_: dict) -> Column:
         Column: A PySpark Column object representing the value retrieved from the map.
 
     Examples:
+        ```python
         >>> map = {1: 'a', 2: 'b'}
         >>> column_name = 'key_column'
         >>> df = spark.createDataFrame([(1,), (2,)], ['key_column'])
@@ -127,6 +171,7 @@ def get_value_from_map(column_or_name: ColumnOrName, dict_: dict) -> Column:
         |         1|    a|
         |         2|    b|
         +----------+-----+
+        ```
     """
     (column,) = ensure_column(column_or_name)
 
@@ -144,6 +189,20 @@ def when_mapping(column_or_name: ColumnOrName, dict_: dict) -> Column:
 
     Returns:
         Column: A new PySpark Column with the conditional mappings applied.
+
+    Examples:
+        ```python
+        >>> df = spark.createDataFrame([("A",), ("B",), ("C",)], ["category"])
+        >>> mapping = {"A": 1, "B": 2}
+        >>> df.select("category", when_mapping(F.col("category"), mapping).alias("mapped")).show()
+        +--------+------+
+        |category|mapped|
+        +--------+------+
+        |       A|     1|
+        |       B|     2|
+        |       C|  null|
+        +--------+------+
+        ```
     """
     (column,) = ensure_column(column_or_name)
 
