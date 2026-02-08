@@ -24,3 +24,7 @@ classifiers = [
 
 [project.optional-dependencies]
 ai = ["transformers>=4.40", "torch"]
+
+[tool.setuptools.packages.find]
+include = ["pysparky*"]
+exclude = ["site*", "tests*"]
