@@ -16,7 +16,7 @@ def ensure_column(*columns: ColumnOrName) -> tuple[Column, ...]:
     Returns:
     tuple[Column]: A tuple of Column objects.
 
-    Examples:
+    Example:
     ``` py
     >>> ensure_column("col1", "col2", F.col("col3"))
     (Column<b'col1'>, Column<b'col2'>, Column<b'col3'>)
@@ -43,7 +43,7 @@ def ensure_list(single_or_list: Any | list[Any]) -> list[Any]:
     Returns:
         List[Any]: A list containing the input item(s).
 
-    Examples:
+    Example:
         ``` py
         >>> ensure_list(5)
 
@@ -69,7 +69,7 @@ def ensure_list(single_or_list: Any | list[Any]) -> list[Any]:
 #     Returns:
 #     list[str]: A list containing the column names.
 
-#     Examples:
+#     Example:
 #     >>> column_name_or_column_names_enabler("col1")
 #     ['col1']
 #     >>> column_name_or_column_names_enabler(["col1", "col2"])

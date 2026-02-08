@@ -25,7 +25,7 @@ def get_latest_record_from_column(
     Returns:
         DataFrame: A DataFrame with the most recent record for each partition.
 
-    Examples:
+    Example:
         ```python
         >>> data = [
         ...     ("A", 1, "2021-01-01"),
@@ -74,7 +74,7 @@ def quarantine_duplicate_record(
         tuple[DataFrame, DataFrame]: A tuple containing two DataFrames. The first DataFrame
         contains unique records, and the second DataFrame contains duplicate records.
 
-    Examples:
+    Example:
         ```python
         >>> data = [(1, "A"), (2, "B"), (3, "C"), (1, "A"), (4, "D"), (2, "B")]
         >>> sdf = spark.createDataFrame(data, ["id", "value"])
@@ -117,7 +117,7 @@ def get_only_duplicate_record(sdf: DataFrame, column_name: str) -> DataFrame:
     Returns:
         DataFrame: A DataFrame containing only the duplicate records.
 
-    Examples:
+    Example:
         ```python
         >>> data = [(1, "A"), (2, "B"), (3, "C"), (1, "A"), (4, "D"), (2, "B")]
         >>> sdf = spark.createDataFrame(data, ["id", "value"])
@@ -149,7 +149,7 @@ def get_only_unique_record(sdf: DataFrame, column_name: str) -> DataFrame:
     Returns:
         DataFrame: A DataFrame containing only the unique records.
 
-    Examples:
+    Example:
         ```python
         >>> data = [(1, "A"), (2, "B"), (3, "C"), (1, "A"), (4, "D"), (2, "B")]
         >>> sdf = spark.createDataFrame(data, ["id", "value"])

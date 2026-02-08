@@ -25,7 +25,7 @@ def cast_string_to_boolean(column_or_name: ColumnOrName) -> Column:
         converted to their corresponding boolean values, and unrecognized
         strings are converted to None.
 
-    Examples:
+    Example:
         ```python
         >>> df = spark.createDataFrame([("True",), ("false",), ("1",), ("0",), ("other",)], ["bool_str"])
         >>> df.select(cast_string_to_boolean(F.col("bool_str")).alias("bool_val")).show()
@@ -69,7 +69,7 @@ def to_timestamps(column_or_name: ColumnOrName, formats: list[str]) -> Column:
     Returns:
         Column: A Spark Column of type timestamp. If none of the formats match for a row, the value will be `NULL`.
 
-    Examples:
+    Example:
         ```python
         >>> df = spark.createDataFrame([("2021-01-01",), ("01/02/2021",), ("invalid",)], ["date_str"])
         >>> formats = ["yyyy-MM-dd", "MM/dd/yyyy"]

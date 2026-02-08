@@ -1,10 +1,7 @@
 import pyspark
 from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
 
-from pysparky import functions as F_
 from pysparky import spark_ext as se
-from pysparky import transformations as te
 
 print(pyspark.__version__)
 

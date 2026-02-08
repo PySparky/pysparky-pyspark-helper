@@ -46,7 +46,7 @@ def transforms(
     Returns:
         DataFrame: The transformed Spark DataFrame.
 
-    Examples:
+    Example:
         ```python
         >>> def add_one(sdf, col_name):
         ...     return sdf.withColumn(col_name, F.col(col_name) + 1)
@@ -92,7 +92,7 @@ def filters(
     Raises:
         ValueError: If an unsupported operator is provided.
 
-    Examples:
+    Example:
         ```python
         >>> from pyspark.sql.functions import col
         >>> df = spark.createDataFrame([(1, 'a'), (2, 'b'), (3, 'c')], ['id', 'letter'])
@@ -146,7 +146,7 @@ def distinct_value_counts_map(sdf: DataFrame, column_name: str) -> DataFrame:
     Returns:
         DataFrame: A DataFrame containing a single column with a map of distinct values and their counts.
 
-    Examples:
+    Example:
         ```python
         >>> data = [("Alice",), ("Bob",), ("Alice",), ("Eve",), (None,)]
         >>> sdf = spark.createDataFrame(data, ["name"])
@@ -183,7 +183,7 @@ def get_unique_values(df1: DataFrame, df2: DataFrame, column_name: str) -> DataF
     Returns:
         DataFrame: A DataFrame with unique values.
 
-    Examples:
+    Example:
         ```python
         >>> df1 = spark.createDataFrame([(1,), (2,), (3,)], ["value"])
         >>> df2 = spark.createDataFrame([(3,), (4,), (5,)], ["value"])
@@ -227,7 +227,7 @@ def set_columns_to_null_based_on_condition(
     Returns:
         DataFrame: The updated DataFrame with specified columns set to null based on the condition.
 
-    Examples:
+    Example:
         ```python
         >>> data = [
         ...     (1, 0, 0, 0),
@@ -287,7 +287,7 @@ def execute_transformation_blueprint(
     Returns:
         DataFrame: The resulting DataFrame with the transformed columns.
 
-    Examples:
+    Example:
         ```python
         >>> df = spark.createDataFrame([(1,), (2,)], ["value"])
         >>> blueprint = {"value_plus_1": F.col("value") + 1}
@@ -319,7 +319,7 @@ def agg_apply(df: DataFrame, agg_exprs: Dict[str, Column]) -> DataFrame:
     Returns:
         DataFrame: A DataFrame containing the aggregated results.
 
-    Examples:
+    Example:
         ```python
         >>> df = spark.createDataFrame([(1, "A"), (2, "A"), (3, "B")], ["value", "category"])
         >>> agg_exprs = {

@@ -32,7 +32,7 @@ def build_text_generation_udf(
     Raises:
         TypeError: If `model_bc` or `tokenizer_bc` is not a Broadcast instance.
 
-    Examples:
+    Example:
         ```python
         >>> from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
         >>> model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")

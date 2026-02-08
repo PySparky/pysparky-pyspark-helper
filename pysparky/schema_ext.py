@@ -18,7 +18,7 @@ def filter_columns_by_datatype(
     Returns:
         T.StructType: A StructType of StructField names that match the specified data type.
 
-    Examples:
+    Example:
         ```python
         >>> schema = T.StructType([
         ...     T.StructField("id", T.IntegerType(), True),

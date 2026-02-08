@@ -22,7 +22,7 @@ def column_function(spark: SparkSession, column_obj: Column) -> DataFrame:
     Returns:
         pyspark.sql.DataFrame: A single-row DataFrame containing the result of the Column expression.
 
-    Examples:
+    Example:
         ``` py
         from pyspark.sql import SparkSession, functions as F
         spark = SparkSession.builder.getOrCreate()
@@ -93,7 +93,7 @@ def convert_dict_to_dataframe(
     Returns:
         pyspark.sql.DataFrame: A DataFrame with the dictionary keys and their corresponding exploded list values.
 
-    Examples:
+    Example:
         ``` py
         datadict_ = {
             "key1": 1,
@@ -151,7 +151,7 @@ def convert_1d_list_to_dataframe(
     Raises:
         AttributeError: If the axis parameter is not "column" or "row".
 
-    Examples:
+    Example:
         ``` py
         >>> spark = SparkSession.builder.appName("example").getOrCreate()
         >>> list_ = [1, 2, 3, 4]

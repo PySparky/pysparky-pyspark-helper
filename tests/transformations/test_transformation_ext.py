@@ -1,6 +1,3 @@
-import functools
-from operator import and_, or_
-
 import pytest
 
 import pysparky.transformations as te
