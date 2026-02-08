@@ -20,7 +20,7 @@ class ValidationRule:
         combined_condition (Column): The combined condition of all the conditions using logical AND.
             It will generate from conditions
 
-    Examples:
+    Example:
         ValidationRule("first_name_check", F_.printable_only("first_name")),
     """
 
@@ -41,7 +41,7 @@ class DataValidator:
     Attributes:
         rules (list[ValidationRule]): A list of validation rules.
 
-    Examples:
+    Example:
         ```python
         >>> ValidationRules = [
         ...     ValidationRule("first_name_check", F_.is_printable_only("first_name")),
@@ -80,7 +80,7 @@ class DataValidator:
         Returns:
             DataValidator: An instance of DataValidator.
 
-        Examples:
+        Example:
             ```python
             >>> conditions = {
             ...     "first_name_check": F_.is_printable_only("first_name"),
@@ -107,7 +107,7 @@ class DataValidator:
             dict[str, Column]: A dictionary where keys are rule names
                 and values are combined conditions.
 
-        Examples:
+        Example:
             ```python
             >>> sdf.withColumns(validator.query_map)
             ```
@@ -125,7 +125,7 @@ class DataValidator:
         Returns:
             DataFrame: The Spark DataFrame with the conditions applied.
 
-        Examples:
+        Example:
             ```python
             >>> validator.apply_conditions(data_sdf)
             ```
@@ -143,7 +143,7 @@ class DataValidator:
         Returns:
             DataFrame: The Spark DataFrame with invalid rows filtered out.
 
-        Examples:
+        Example:
             ```python
             >>> validator.filter_invalid(data_sdf)
             ```
@@ -170,7 +170,7 @@ class DataValidator:
         Returns:
             DataFrame: The Spark DataFrame with valid rows filtered out.
 
-        Examples:
+        Example:
             ```python
             >>> validator.filter_valid(data_sdf).select(data_sdf.columns).show()
             ```

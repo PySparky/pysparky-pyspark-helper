@@ -17,7 +17,7 @@ def expect_type(col_name, col_type):
     Raises:
         AssertionError: If the column's data type does not match the expected type.
 
-    Examples:
+    Example:
         ```python
         >>> from pyspark.sql.types import IntegerType
         >>> @expect_type("id", IntegerType())
@@ -57,7 +57,7 @@ def expect_unique(col_name):
     Raises:
         AssertionError: If the column's count and distinct count are not equal.
 
-    Examples:
+    Example:
         ```python
         >>> @expect_unique("id")
         ... def get_data():
@@ -97,7 +97,7 @@ def expect_criteria(criteria):
     Raises:
         AssertionError: If the filtered count and unfiltered count of the DataFrame are not equal.
 
-    Examples:
+    Example:
         ```python
         >>> @expect_criteria(F.col("age") > 0)
         ... def get_data():
@@ -132,7 +132,7 @@ def expect_any_to_one(col1: str | Sequence[str], col2: str | Sequence[str]):
         col1 (str | Sequence[str]): Name of the column or a tuple of column names.
         col2 (str | Sequence[str]): Name of the column or a tuple of column names.
 
-    Examples:
+    Example:
         ```python
         >>> @expect_any_to_one("city", "country")
         ... def get_data():
@@ -171,7 +171,7 @@ def expect_one_to_one(col1: str | Sequence[str], col2: str | Sequence[str]):
         col1 (str | Sequence[str]): Name of the column or a tuple of column names.
         col2 (str | Sequence[str]): Name of the column or a tuple of column names.
 
-    Examples:
+    Example:
         ```python
         >>> @expect_one_to_one("id", "name")
         ... def get_data():

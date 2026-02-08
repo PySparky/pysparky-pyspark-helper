@@ -14,7 +14,7 @@ def write_single_csv(sdf: DataFrame, path: str, **csvKwargs):
         path (str): The destination path for the CSV file.
         **csvKwargs: Additional keyword arguments to pass to the DataFrame's write.csv method.
 
-    Examples:
+    Example:
         ```python
         >>> write_single_csv(spark.range(1), "temp/file.csv", header=True, mode='overwrite')
         ```
@@ -36,7 +36,7 @@ def write_single_csv(sdf: DataFrame, path: str, **csvKwargs):
 #         s3_prefix (str): The S3 bucket and prefix where the file will be stored.
 #         **csvKwargs: Additional keyword arguments to pass to the DataFrame's write.csv method.
 
-#     Examples:
+#     Example:
 #         ```python
 #         >>> write_single_csv_s3(spark.range(1), "file.csv", s3_profile_name="my_profile", s3_prefix="s3://bucket/cenz", header=True, mode='overwrite')
 #         ```

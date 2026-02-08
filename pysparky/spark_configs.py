@@ -23,7 +23,7 @@ class SparkConfigBase(ABC):
 @dataclass
 class AwsS3TablesSparkConfig(SparkConfigBase):
     """
-    Examples:
+    Example:
         ```python
         >>> spark_configs = AwsS3TablesSparkConfig(
         ...     catalog_name="s3tablescatalog/tablebucket",
@@ -63,7 +63,7 @@ class AwsS3SparkConfig(SparkConfigBase):
         AWS_SECRET_ACCESS_KEY=
         AWS_ACCESS_KEY_ID=
 
-    Examples:
+    Example:
         ```python
         >>> spark_configs = AwsS3SparkConfig().to_spark_config_map()
         >>> spark = SparkSession.builder.config(map=spark_configs).getOrCreate()
