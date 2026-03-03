@@ -252,21 +252,32 @@ def startswiths(
     ).alias(f"startswiths_len{len(list_of_strings)}")
 
 
-def is_array_monotonic(col: ColumnOrName, cmp_fn: Callable) -> Column:
+def is_array_monotonic(
+    col: ColumnOrName,
+    cmp_fn: Callable,
+    null_policy: str = "forbid",
+) -> Column:
     """
-    Check if an array column is monotonic according to a comparator.
+    Check if an array column is monotonic according to a comparator and a NULL policy.
 
     Args:
-        col (ColumnOrName): Array column to check
+        col (ColumnOrName): Array column to check.
         cmp_fn (callable): Binary function (x, y) -> Column[bool]-like.
             Typical choices:
                 operator.lt  # strictly increasing
                 operator.le  # non-decreasing
                 operator.gt  # strictly decreasing
                 operator.ge  # non-increasing
+        null_policy (str): How to treat NULL elements inside the array:
+            - "forbid"      : any NULL inside the array makes the result False
+            - "ignore"      : drop all NULLs before checking monotonicity
+            - "allow_first" : allow multiple NULLs at the first positions (ignored in check)
+            - "allow_last"  : allow multiple NULLs at the last positions (ignored in check)
+            - "allow_ends"  : allow multiple NULLs at the first and/or last positions
 
     Returns:
-        Column: Boolean column: True if all adjacent pairs satisfy cmp_fn, False otherwise. Empty / single-element arrays return True.
+        Column: Boolean column: True if the array is monotonic under the chosen comparator
+        and NULL policy. Empty / single-element arrays return True.
 
     Example:
         ```python
@@ -283,13 +294,56 @@ def is_array_monotonic(col: ColumnOrName, cmp_fn: Callable) -> Column:
     """
     (col_obj,) = ensure_column(col)
 
-    # For arrays of size 0 or 1, treat as True
-    return F.when(F.size(col_obj) <= 1, F.lit(True)).otherwise(
+    allowed_policies = {"forbid", "ignore", "allow_first", "allow_last", "allow_ends"}
+    if null_policy not in allowed_policies:
+        raise ValueError(f"null_policy must be one of {allowed_policies}, got {null_policy!r}")
+
+    arr = col_obj
+
+    # 1) Transform the array according to the NULL policy (structure-level)
+    if null_policy == "ignore":
+        # Drop all null elements before checking
+        arr = F.filter(arr, lambda x: x.isNotNull())
+    elif null_policy in {"allow_first", "allow_last", "allow_ends"}:
+        first_non_null_idx = F.array_position(F.transform(arr, lambda x: x.isNotNull()), True)
+        last_non_null_idx_rev = F.array_position(F.transform(F.reverse(arr), lambda x: x.isNotNull()), True)
+        last_non_null_idx = F.size(arr) - last_non_null_idx_rev + 1
+
+        if null_policy == "allow_first":
+            arr = F.when(
+                first_non_null_idx > 0,
+                F.slice(arr, first_non_null_idx, F.size(arr) - first_non_null_idx + 1)
+            ).otherwise(F.array())
+
+        elif null_policy == "allow_last":
+            arr = F.when(
+                last_non_null_idx_rev > 0,
+                F.slice(arr, 1, last_non_null_idx)
+            ).otherwise(F.array())
+
+        elif null_policy == "allow_ends":
+            arr = F.when(
+                first_non_null_idx > 0,
+                F.slice(arr, first_non_null_idx, last_non_null_idx - first_non_null_idx + 1)
+            ).otherwise(F.array())
+
+    # 2) Define how to compare pairs (element-level NULL behavior)
+    if null_policy == "ignore":
+        # After filtering, arr should have no NULLs, so we can use cmp_fn directly
+        def pair_cmp(x: Column, y: Column) -> Column:
+            return cmp_fn(x, y)
+    else:
+        # For all other policies, any remaining NULL in pairs means monotonicity fails
+        def pair_cmp(x: Column, y: Column) -> Column:
+            return F.when(x.isNull() | y.isNull(), F.lit(False)).otherwise(cmp_fn(x, y))
+
+    # 3) Empty / single-element arrays are vacuously monotonic
+    return F.when(F.size(arr) <= 1, F.lit(True)).otherwise(
         F.aggregate(
             F.zip_with(
-                F.slice(col_obj, 1, F.size(col_obj) - 1),  # a[0..n-2]
-                F.slice(col_obj, 2, F.size(col_obj) - 1),  # a[1..n-1]
-                cmp_fn,  # compare adjacent pairs
+                F.slice(arr, 1, F.size(arr) - 1),  # a[0..n-2]
+                F.slice(arr, 2, F.size(arr) - 1),  # a[1..n-1]
+                pair_cmp,  # compare adjacent pairs
             ),
             F.lit(True),
             lambda acc, x: acc & x,  # AND over all comparisons
@@ -297,12 +351,13 @@ def is_array_monotonic(col: ColumnOrName, cmp_fn: Callable) -> Column:
     )
 
 
-def is_array_strictly_increasing(col: ColumnOrName) -> Column:
+def is_array_strictly_increasing(col: ColumnOrName, null_policy: str = "forbid") -> Column:
     """
     Check if an array column is strictly increasing.
 
     Args:
         col (ColumnOrName): Array column to check
+        null_policy (str): How to treat NULL elements inside the array.
 
     Returns:
         Column: Boolean column: True if the array is strictly increasing, False otherwise.
@@ -319,15 +374,16 @@ def is_array_strictly_increasing(col: ColumnOrName) -> Column:
         +------+
         ```
     """
-    return is_array_monotonic(col, op.lt)
+    return is_array_monotonic(col, op.lt, null_policy=null_policy)
 
 
-def is_array_non_decreasing(col: ColumnOrName) -> Column:
+def is_array_non_decreasing(col: ColumnOrName, null_policy: str = "forbid") -> Column:
     """
     Check if an array column is non-decreasing.
 
     Args:
         col (ColumnOrName): Array column to check
+        null_policy (str): How to treat NULL elements inside the array.
 
     Returns:
         Column: Boolean column: True if the array is non-decreasing, False otherwise.
@@ -344,15 +400,16 @@ def is_array_non_decreasing(col: ColumnOrName) -> Column:
         +----------+
         ```
     """
-    return is_array_monotonic(col, op.le)
+    return is_array_monotonic(col, op.le, null_policy=null_policy)
 
 
-def is_array_strictly_decreasing(col: ColumnOrName) -> Column:
+def is_array_strictly_decreasing(col: ColumnOrName, null_policy: str = "forbid") -> Column:
     """
     Check if an array column is strictly decreasing.
 
     Args:
         col (ColumnOrName): Array column to check
+        null_policy (str): How to treat NULL elements inside the array.
 
     Returns:
         Column: Boolean column: True if the array is strictly decreasing, False otherwise.
@@ -369,15 +426,16 @@ def is_array_strictly_decreasing(col: ColumnOrName) -> Column:
         +------+
         ```
     """
-    return is_array_monotonic(col, op.gt)
+    return is_array_monotonic(col, op.gt, null_policy=null_policy)
 
 
-def is_array_non_increasing(col: ColumnOrName) -> Column:
+def is_array_non_increasing(col: ColumnOrName, null_policy: str = "forbid") -> Column:
     """
     Check if an array column is non-increasing.
 
     Args:
         col (ColumnOrName): Array column to check
+        null_policy (str): How to treat NULL elements inside the array.
 
     Returns:
         Column: Boolean column: True if the array is non-increasing, False otherwise.
@@ -394,4 +452,4 @@ def is_array_non_increasing(col: ColumnOrName) -> Column:
         +----------+
         ```
     """
-    return is_array_monotonic(col, op.ge)
+    return is_array_monotonic(col, op.ge, null_policy=null_policy)

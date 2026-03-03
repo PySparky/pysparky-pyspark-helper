@@ -298,5 +298,41 @@ def test_is_array_monotonic(spark):
         assert row["non_inc"] == row["exp_non_inc"], f"Failed non_inc for {row['arr']}"
 
 
+def test_is_array_monotonic_null_policies(spark):
+    data = [
+        # arr, forbid, ignore, allow_first, allow_last, allow_ends
+        ([1, 2, None, 4], False, True, False, False, False),
+        ([None, None, 1, 2], False, True, True, False, True),
+        ([1, 2, None, None], False, True, False, True, True),
+        ([None, 1, 2, None, None], False, True, False, False, True),
+        ([None, None], False, True, True, True, True),
+        ([None, 2, 1, None], False, False, False, False, False)
+    ]
+    df = spark.createDataFrame(data, ["arr", "forbid", "ignore", "first", "last", "ends"])
+
+    # We will test strictly increasing (except for the last one which is not monotonic)
+    # the last one ([None, 2, 1, None]) would fail increasing for all.
+
+    result_df = df.withColumn(
+        "forbid_res", F_.is_array_strictly_increasing("arr", null_policy="forbid")
+    ).withColumn(
+        "ignore_res", F_.is_array_strictly_increasing("arr", null_policy="ignore")
+    ).withColumn(
+        "first_res", F_.is_array_strictly_increasing("arr", null_policy="allow_first")
+    ).withColumn(
+        "last_res", F_.is_array_strictly_increasing("arr", null_policy="allow_last")
+    ).withColumn(
+        "ends_res", F_.is_array_strictly_increasing("arr", null_policy="allow_ends")
+    )
+
+    results = result_df.collect()
+    for row in results:
+        assert row["forbid_res"] == row["forbid"], f"Failed forbid for {row['arr']}"
+        assert row["ignore_res"] == row["ignore"], f"Failed ignore for {row['arr']}"
+        assert row["first_res"] == row["first"], f"Failed allow_first for {row['arr']}"
+        assert row["last_res"] == row["last"], f"Failed allow_last for {row['arr']}"
+        assert row["ends_res"] == row["ends"], f"Failed allow_ends for {row['arr']}"
+
+
 if __name__ == "__main__":
     pytest.main()
