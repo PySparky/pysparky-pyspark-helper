@@ -162,5 +162,40 @@ def test_agg_apply(spark):
     assert result["count"] == 3
 
 
+def test_order_and_aggregate_events(spark):
+    data = [
+        ("A", "val1", 2),
+        ("A", "val2", 1),
+        ("A", "val3", 3),
+        ("B", "val4", 1),
+        ("C", "val5", 5),
+        ("C", "val6", 2),
+    ]
+    df = spark.createDataFrame(data, ["id", "value", "record_no"])
+
+    result_df = te.order_and_aggregate_events(
+        df, "id", "value", "record_no", "values", "record_nos"
+    )
+
+    result = result_df.collect()
+
+    # Sort by ID to make it easier to compare
+    result_sorted = sorted(result, key=lambda x: x["id"])
+
+    # Check A
+    assert result_sorted[0]["id"] == "A"
+    assert result_sorted[0]["values"] == ["val2", "val1", "val3"]
+    assert result_sorted[0]["record_nos"] == [1, 2, 3]
+
+    # Check B
+    assert result_sorted[1]["id"] == "B"
+    assert result_sorted[1]["values"] == ["val4"]
+    assert result_sorted[1]["record_nos"] == [1]
+
+    # Check C
+    assert result_sorted[2]["id"] == "C"
+    assert result_sorted[2]["values"] == ["val6", "val5"]
+    assert result_sorted[2]["record_nos"] == [2, 5]
+
 if __name__ == "__main__":
     pytest.main([__file__])
