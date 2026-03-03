@@ -1,3 +1,5 @@
+import operator as op
+from collections.abc import Callable
 from functools import reduce
 from operator import and_, or_
 
@@ -248,3 +250,148 @@ def startswiths(
         map(column.startswith, list_of_strings),
         F.lit(False),
     ).alias(f"startswiths_len{len(list_of_strings)}")
+
+
+def is_array_monotonic(col: ColumnOrName, cmp_fn: Callable) -> Column:
+    """
+    Check if an array column is monotonic according to a comparator.
+
+    Args:
+        col (ColumnOrName): Array column to check
+        cmp_fn (callable): Binary function (x, y) -> Column[bool]-like.
+            Typical choices:
+                operator.lt  # strictly increasing
+                operator.le  # non-decreasing
+                operator.gt  # strictly decreasing
+                operator.ge  # non-increasing
+
+    Returns:
+        Column: Boolean column: True if all adjacent pairs satisfy cmp_fn, False otherwise. Empty / single-element arrays return True.
+
+    Example:
+        ```python
+        >>> import operator as op
+        >>> df = spark.createDataFrame([([1, 2, 3],), ([3, 2, 1],)], ["arr"])
+        >>> df.select(is_array_monotonic(F.col("arr"), op.lt).alias("is_strictly_inc")).show()
+        +---------------+
+        |is_strictly_inc|
+        +---------------+
+        |           true|
+        |          false|
+        +---------------+
+        ```
+    """
+    (col_obj,) = ensure_column(col)
+
+    # For arrays of size 0 or 1, treat as True
+    return F.when(F.size(col_obj) <= 1, F.lit(True)).otherwise(
+        F.aggregate(
+            F.zip_with(
+                F.slice(col_obj, 1, F.size(col_obj) - 1),  # a[0..n-2]
+                F.slice(col_obj, 2, F.size(col_obj) - 1),  # a[1..n-1]
+                cmp_fn,  # compare adjacent pairs
+            ),
+            F.lit(True),
+            lambda acc, x: acc & x,  # AND over all comparisons
+        )
+    )
+
+
+def is_array_strictly_increasing(col: ColumnOrName) -> Column:
+    """
+    Check if an array column is strictly increasing.
+
+    Args:
+        col (ColumnOrName): Array column to check
+
+    Returns:
+        Column: Boolean column: True if the array is strictly increasing, False otherwise.
+
+    Example:
+        ```python
+        >>> df = spark.createDataFrame([([1, 2, 3],), ([1, 2, 2],)], ["arr"])
+        >>> df.select(is_array_strictly_increasing(F.col("arr")).alias("is_inc")).show()
+        +------+
+        |is_inc|
+        +------+
+        |  true|
+        | false|
+        +------+
+        ```
+    """
+    return is_array_monotonic(col, op.lt)
+
+
+def is_array_non_decreasing(col: ColumnOrName) -> Column:
+    """
+    Check if an array column is non-decreasing.
+
+    Args:
+        col (ColumnOrName): Array column to check
+
+    Returns:
+        Column: Boolean column: True if the array is non-decreasing, False otherwise.
+
+    Example:
+        ```python
+        >>> df = spark.createDataFrame([([1, 2, 2],), ([3, 2, 1],)], ["arr"])
+        >>> df.select(is_array_non_decreasing(F.col("arr")).alias("is_non_dec")).show()
+        +----------+
+        |is_non_dec|
+        +----------+
+        |      true|
+        |     false|
+        +----------+
+        ```
+    """
+    return is_array_monotonic(col, op.le)
+
+
+def is_array_strictly_decreasing(col: ColumnOrName) -> Column:
+    """
+    Check if an array column is strictly decreasing.
+
+    Args:
+        col (ColumnOrName): Array column to check
+
+    Returns:
+        Column: Boolean column: True if the array is strictly decreasing, False otherwise.
+
+    Example:
+        ```python
+        >>> df = spark.createDataFrame([([3, 2, 1],), ([3, 2, 2],)], ["arr"])
+        >>> df.select(is_array_strictly_decreasing(F.col("arr")).alias("is_dec")).show()
+        +------+
+        |is_dec|
+        +------+
+        |  true|
+        | false|
+        +------+
+        ```
+    """
+    return is_array_monotonic(col, op.gt)
+
+
+def is_array_non_increasing(col: ColumnOrName) -> Column:
+    """
+    Check if an array column is non-increasing.
+
+    Args:
+        col (ColumnOrName): Array column to check
+
+    Returns:
+        Column: Boolean column: True if the array is non-increasing, False otherwise.
+
+    Example:
+        ```python
+        >>> df = spark.createDataFrame([([3, 2, 2],), ([1, 2, 3],)], ["arr"])
+        >>> df.select(is_array_non_increasing(F.col("arr")).alias("is_non_inc")).show()
+        +----------+
+        |is_non_inc|
+        +----------+
+        |      true|
+        |     false|
+        +----------+
+        ```
+    """
+    return is_array_monotonic(col, op.ge)

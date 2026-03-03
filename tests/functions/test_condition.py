@@ -268,5 +268,35 @@ def test_startswiths(spark):
     assert target == test1
 
 
+def test_is_array_monotonic(spark):
+    data = [
+        ([1, 2, 3], True, True, False, False),       # strictly increasing
+        ([1, 2, 2], False, True, False, False),      # non-decreasing
+        ([3, 2, 1], False, False, True, True),       # strictly decreasing
+        ([3, 2, 2], False, False, False, True),      # non-increasing
+        ([1, 3, 2], False, False, False, False),     # not monotonic
+        ([], True, True, True, True),                # empty
+        ([1], True, True, True, True)                # single element
+    ]
+    df = spark.createDataFrame(data, ["arr", "exp_inc", "exp_non_dec", "exp_dec", "exp_non_inc"])
+
+    result_df = df.withColumn(
+        "inc", F_.is_array_strictly_increasing("arr")
+    ).withColumn(
+        "non_dec", F_.is_array_non_decreasing("arr")
+    ).withColumn(
+        "dec", F_.is_array_strictly_decreasing("arr")
+    ).withColumn(
+        "non_inc", F_.is_array_non_increasing("arr")
+    )
+
+    results = result_df.collect()
+    for row in results:
+        assert row["inc"] == row["exp_inc"], f"Failed inc for {row['arr']}"
+        assert row["non_dec"] == row["exp_non_dec"], f"Failed non_dec for {row['arr']}"
+        assert row["dec"] == row["exp_dec"], f"Failed dec for {row['arr']}"
+        assert row["non_inc"] == row["exp_non_inc"], f"Failed non_inc for {row['arr']}"
+
+
 if __name__ == "__main__":
     pytest.main()
