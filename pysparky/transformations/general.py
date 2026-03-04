@@ -345,6 +345,7 @@ def order_and_aggregate_events(
     record_no_col: str,
     values_array_col: str,
     record_nos_array_col: str,
+    sort_asc: bool = True,
 ) -> DataFrame:
     """
     Group events by id, order by record_no, and aggregate into arrays.
@@ -356,6 +357,7 @@ def order_and_aggregate_events(
         record_no_col (str): The column name for record numbers to sort by.
         values_array_col (str): The column name for the aggregated values array.
         record_nos_array_col (str): The column name for the aggregated record numbers array.
+        sort_asc (bool, optional): Whether to sort the arrays in ascending order. Defaults to True.
 
     Returns:
         DataFrame: A DataFrame with events aggregated into arrays and ordered by record_no.
@@ -379,30 +381,35 @@ def order_and_aggregate_events(
         ```
     """
     # Struct: (record_no, value) so sort_array orders by record_no
-    events_df = df.groupBy(F.col(id_col)).agg(
-        F.sort_array(
-            F.collect_list(
-                F.struct(
-                    F.col(record_no_col).alias("record_no"),
-                    F.col(value_col).alias("value"),
-                )
-            )
-        ).alias(
-            "_events"
-        )  # temporary array<struct<record_no, value>>
+    events_df = (
+        df.groupBy(F.col(id_col))
+        .agg(
+            F.sort_array(
+                F.collect_list(
+                    F.struct(
+                        F.col(record_no_col).alias("record_no"),
+                        F.col(value_col).alias("value"),
+                    )
+                ),
+                asc=sort_asc,
+            ).alias("_events")  # temporary array<struct<record_no, value>>
+        )
     )
 
     # Extract ordered arrays using transform, Python-native (no expr)
-    result_df = events_df.select(
-        F.col(id_col),
-        F.transform(
-            F.col("_events"),
-            lambda x: x["value"],
-        ).alias(values_array_col),
-        F.transform(
-            F.col("_events"),
-            lambda x: x["record_no"],
-        ).alias(record_nos_array_col),
+    result_df = (
+        events_df
+        .select(
+            F.col(id_col),
+            F.transform(
+                F.col("_events"),
+                lambda x: x["value"],
+            ).alias(values_array_col),
+            F.transform(
+                F.col("_events"),
+                lambda x: x["record_no"],
+            ).alias(record_nos_array_col),
+        )
     )
 
     return result_df
