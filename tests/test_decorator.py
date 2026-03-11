@@ -40,6 +40,52 @@ def test_validate_schema_missing_output(spark):
         faulty_calculate_net_revenue(df)
 
 
+def test_validate_schema_instance_method(spark):
+    df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
+
+    class RevenueCalculator:
+        @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
+        def calculate(self, df: DataFrame) -> DataFrame:
+            return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
+
+    calculator = RevenueCalculator()
+    result = calculator.calculate(df)
+    assert "net_revenue" in result.columns
+    assert result.collect()[0]["net_revenue"] == 80.0
+
+
+def test_validate_schema_kwargs(spark):
+    df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
+
+    @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
+    def calculate_net_revenue(df: DataFrame) -> DataFrame:
+        return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
+
+    result = calculate_net_revenue(df=df)
+    assert "net_revenue" in result.columns
+    assert result.collect()[0]["net_revenue"] == 80.0
+
+
+def test_validate_schema_no_df():
+    @validate_schema(inputs=["user_id"], outputs=["net_revenue"])
+    def invalid_function(not_a_df):
+        pass
+
+    with pytest.raises(ValueError, match="Function invalid_function failed: No DataFrame argument found"):
+        invalid_function("hello")
+
+
+def test_validate_schema_invalid_return(spark):
+    df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
+
+    @validate_schema(inputs=["user_id"], outputs=["net_revenue"])
+    def invalid_return_function(df: DataFrame):
+        return "not a dataframe"
+
+    with pytest.raises(ValueError, match="Function invalid_return_function failed: Did not return a DataFrame"):
+        invalid_return_function(df)
+
+
 def test_extension_enabler():
     class TestClass:
         def __init__(self):

@@ -30,15 +30,33 @@ def validate_schema(inputs: list[str], outputs: list[str]) -> Callable:
     """
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(df: DataFrame, *args: Any, **kwargs: Any) -> DataFrame:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            # Find the DataFrame argument
+            df = None
+            for arg in args:
+                if isinstance(arg, DataFrame):
+                    df = arg
+                    break
+            if df is None:
+                for kwarg in kwargs.values():
+                    if isinstance(kwarg, DataFrame):
+                        df = kwarg
+                        break
+
+            if df is None:
+                raise ValueError(f"Function {func.__name__} failed: No DataFrame argument found")
+
             # Pre-transformation check
             missing_in = [c for c in inputs if c not in df.columns]
             if missing_in:
                 raise ValueError(f"Function {func.__name__} failed: Missing input columns {missing_in}")
 
-            result = func(df, *args, **kwargs)
+            result = func(*args, **kwargs)
 
             # Post-transformation check
+            if not isinstance(result, DataFrame):
+                raise ValueError(f"Function {func.__name__} failed: Did not return a DataFrame")
+
             missing_out = [c for c in outputs if c not in result.columns]
             if missing_out:
                 raise ValueError(f"Function {func.__name__} failed: Expected output columns {missing_out} missing")
