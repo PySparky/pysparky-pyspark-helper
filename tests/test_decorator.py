@@ -1,7 +1,43 @@
 import pytest
 
 # Now import the decorators
-from pysparky.decorator import extension_enabler
+from pyspark.sql import DataFrame
+from pysparky.decorator import extension_enabler, validate_schema
+
+
+def test_validate_schema_success(spark):
+    df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
+
+    @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
+    def calculate_net_revenue(df: DataFrame) -> DataFrame:
+        return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
+
+    result = calculate_net_revenue(df)
+    assert "net_revenue" in result.columns
+    assert result.collect()[0]["net_revenue"] == 80.0
+
+
+def test_validate_schema_missing_input(spark):
+    df = spark.createDataFrame([(1, 100.0)], ["user_id", "other_col"])
+
+    @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
+    def calculate_net_revenue(df: DataFrame) -> DataFrame:
+        return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
+
+    with pytest.raises(ValueError, match="Function calculate_net_revenue failed: Missing input columns \\['raw_revenue'\\]"):
+        calculate_net_revenue(df)
+
+
+def test_validate_schema_missing_output(spark):
+    df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
+
+    @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
+    def faulty_calculate_net_revenue(df: DataFrame) -> DataFrame:
+        # Fails to create the required output column
+        return df.withColumn("wrong_name", df["raw_revenue"] * 0.8)
+
+    with pytest.raises(ValueError, match="Function faulty_calculate_net_revenue failed: Expected output columns \\['net_revenue'\\] missing"):
+        faulty_calculate_net_revenue(df)
 
 
 def test_extension_enabler():
