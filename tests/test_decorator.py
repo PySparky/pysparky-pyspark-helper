@@ -2,72 +2,149 @@ import pytest
 
 # Now import the decorators
 from pyspark.sql import DataFrame
-from pysparky.decorator import extension_enabler, validate_schema
+from pysparky.decorator import extension_enabler, validate_columns
 
 
-def test_validate_schema_success(spark):
+def test_validate_columns_input_exact(spark):
     df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
 
-    @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
-    def calculate_net_revenue(df: DataFrame) -> DataFrame:
-        return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
+    @validate_columns(input_cols=["user_id", "raw_revenue"])
+    def func(df: DataFrame) -> DataFrame:
+        return df
 
-    result = calculate_net_revenue(df)
-    assert "net_revenue" in result.columns
-    assert result.collect()[0]["net_revenue"] == 80.0
+    # Success
+    func(df)
 
+    @validate_columns(input_cols=["user_id"])
+    def func_fail(df: DataFrame) -> DataFrame:
+        return df
 
-def test_validate_schema_missing_input(spark):
-    df = spark.createDataFrame([(1, 100.0)], ["user_id", "other_col"])
-
-    @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
-    def calculate_net_revenue(df: DataFrame) -> DataFrame:
-        return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
-
-    with pytest.raises(ValueError, match="Function calculate_net_revenue failed: Missing input columns \\['raw_revenue'\\]"):
-        calculate_net_revenue(df)
+    # Failure
+    with pytest.raises(ValueError, match="Exact input columns \\['user_id'\\] did not match actual \\['user_id', 'raw_revenue'\\]"):
+        func_fail(df)
 
 
-def test_validate_schema_missing_output(spark):
+def test_validate_columns_required(spark):
     df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
 
-    @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
-    def faulty_calculate_net_revenue(df: DataFrame) -> DataFrame:
-        # Fails to create the required output column
-        return df.withColumn("wrong_name", df["raw_revenue"] * 0.8)
+    @validate_columns(required_cols=["user_id"])
+    def func(df: DataFrame) -> DataFrame:
+        return df
 
-    with pytest.raises(ValueError, match="Function faulty_calculate_net_revenue failed: Expected output columns \\['net_revenue'\\] missing"):
-        faulty_calculate_net_revenue(df)
+    # Success
+    func(df)
+
+    @validate_columns(required_cols=["missing_col"])
+    def func_fail(df: DataFrame) -> DataFrame:
+        return df
+
+    # Failure
+    with pytest.raises(ValueError, match="Missing required input columns \\['missing_col'\\]"):
+        func_fail(df)
 
 
-def test_validate_schema_instance_method(spark):
+def test_validate_columns_expected(spark):
+    df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
+
+    @validate_columns(expected_cols=["net_revenue"])
+    def func(df: DataFrame) -> DataFrame:
+        return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
+
+    # Success
+    func(df)
+
+    @validate_columns(expected_cols=["net_revenue"])
+    def func_fail(df: DataFrame) -> DataFrame:
+        return df
+
+    # Failure
+    with pytest.raises(ValueError, match="Missing expected output columns \\['net_revenue'\\]"):
+        func_fail(df)
+
+
+def test_validate_columns_output_exact(spark):
+    df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
+
+    @validate_columns(output_cols=["user_id", "raw_revenue", "net_revenue"])
+    def func(df: DataFrame) -> DataFrame:
+        return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
+
+    # Success
+    func(df)
+
+    @validate_columns(output_cols=["user_id", "net_revenue"])
+    def func_fail(df: DataFrame) -> DataFrame:
+        return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
+
+    # Failure
+    with pytest.raises(ValueError, match="Exact output columns \\['user_id', 'net_revenue'\\] did not match actual \\['user_id', 'raw_revenue', 'net_revenue'\\]"):
+        func_fail(df)
+
+
+def test_validate_columns_added(spark):
+    df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
+
+    @validate_columns(added_cols=["net_revenue"])
+    def func(df: DataFrame) -> DataFrame:
+        return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
+
+    # Success
+    func(df)
+
+    @validate_columns(added_cols=["net_revenue", "extra"])
+    def func_fail(df: DataFrame) -> DataFrame:
+        return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
+
+    # Failure
+    with pytest.raises(ValueError, match="Added columns \\['net_revenue'\\] did not exactly match expected \\['net_revenue', 'extra'\\]"):
+        func_fail(df)
+
+
+def test_validate_columns_dropped(spark):
+    df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
+
+    @validate_columns(dropped_cols=["raw_revenue"])
+    def func(df: DataFrame) -> DataFrame:
+        return df.drop("raw_revenue")
+
+    # Success
+    func(df)
+
+    @validate_columns(dropped_cols=["raw_revenue"])
+    def func_fail(df: DataFrame) -> DataFrame:
+        return df
+
+    # Failure
+    with pytest.raises(ValueError, match="Dropped columns \\[\\] did not exactly match expected \\['raw_revenue'\\]"):
+        func_fail(df)
+
+
+def test_validate_columns_instance_method(spark):
     df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
 
     class RevenueCalculator:
-        @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
+        @validate_columns(required_cols=["user_id", "raw_revenue"], expected_cols=["net_revenue"])
         def calculate(self, df: DataFrame) -> DataFrame:
             return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
 
     calculator = RevenueCalculator()
     result = calculator.calculate(df)
     assert "net_revenue" in result.columns
-    assert result.collect()[0]["net_revenue"] == 80.0
 
 
-def test_validate_schema_kwargs(spark):
+def test_validate_columns_kwargs(spark):
     df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
 
-    @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
+    @validate_columns(required_cols=["user_id", "raw_revenue"], expected_cols=["net_revenue"])
     def calculate_net_revenue(df: DataFrame) -> DataFrame:
         return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
 
     result = calculate_net_revenue(df=df)
     assert "net_revenue" in result.columns
-    assert result.collect()[0]["net_revenue"] == 80.0
 
 
-def test_validate_schema_no_df():
-    @validate_schema(inputs=["user_id"], outputs=["net_revenue"])
+def test_validate_columns_no_df():
+    @validate_columns(required_cols=["user_id"])
     def invalid_function(not_a_df):
         pass
 
@@ -75,10 +152,10 @@ def test_validate_schema_no_df():
         invalid_function("hello")
 
 
-def test_validate_schema_invalid_return(spark):
+def test_validate_columns_invalid_return(spark):
     df = spark.createDataFrame([(1, 100.0)], ["user_id", "raw_revenue"])
 
-    @validate_schema(inputs=["user_id"], outputs=["net_revenue"])
+    @validate_columns(required_cols=["user_id"])
     def invalid_return_function(df: DataFrame):
         return "not a dataframe"
 

@@ -1,9 +1,9 @@
 from pyspark.sql import DataFrame, SparkSession
-from pysparky.decorator import validate_schema
+from pysparky.decorator import validate_columns
 
 def main():
     # Initialize a small local PySpark session
-    spark = SparkSession.builder.appName("Validate Schema Example").getOrCreate()
+    spark = SparkSession.builder.appName("Validate Columns Example").getOrCreate()
 
     # Create sample data
     data = [(1, 100.0), (2, 250.0), (3, 50.0)]
@@ -14,7 +14,7 @@ def main():
     df.show()
 
     # Define the decorated function
-    @validate_schema(inputs=["user_id", "raw_revenue"], outputs=["net_revenue"])
+    @validate_columns(required_cols=["user_id", "raw_revenue"], added_cols=["net_revenue"])
     def calculate_net_revenue(df: DataFrame) -> DataFrame:
         return df.withColumn("net_revenue", df["raw_revenue"] * 0.8)
 
